@@ -39,3 +39,27 @@
   - [x] Creare l'interfaccia di gestione Gruppi e Assegnazione Utenti (riservata a CD e ADMIN).
   - [x] Creare le form di creazione/modifica eventi e sessioni.
   - [x] Creare il componente per visualizzare lo storico/log delle modifiche di una sessione.
+
+- [x] **Fase 8: Palette verde e bianco**
+  - [x] Definire la scala `brand` (verde) in `@theme` e i componenti `.panel`, `.field`, `.field-label`, `.btn-primary`, `.btn-secondary` in `resources/css/app.css`.
+  - [x] Migrare `layouts/app.blade.php` al tema chiaro verde/bianco (header bianco, footer verde, `theme-color`).
+  - [x] Migrare le viste `calendar/index`, `events/*`, `admin/groups/index`, `auth/*` alla nuova palette.
+  - [x] Documentare palette e componenti nel README.
+
+- [x] **Fase 9: Icone del sito generate da SVG (Docker)**
+  - [x] Creare l'SVG sorgente `public/icon.svg`.
+  - [x] Creare `docker/icons/generate-icons.sh` (favicon, apple-touch, android-chrome, `site.webmanifest`).
+  - [x] Aggiungere lo stage `icon-builder` al `Dockerfile` e consegnare le icone in `/opt/build-seed/icons` (-> `/build/icons/*`).
+  - [x] Servire `/favicon.ico` da nginx con la favicon generata.
+  - [x] Creare `layouts/favicons.blade.php` e includerlo in `layouts/app.blade.php`; usare `icon.svg` come logo.
+  - [x] Documentare le icone nel README.
+  - [ ] Verificare dopo il primo build Docker: `/build/icons/favicon.ico`, `/build/icons/site.webmanifest` e `/icon.svg` rispondono 200.
+
+- [x] **Fase 10: Allineamento Docker Compose a unlimiteddb**
+  - [x] Allineare `docker-compose.yml` (immagine `calendario-cavalcalupi:prod` condivisa da app e worker, asset su `public/build` in nginx).
+  - [x] Creare `docker-compose.dev.yml` e `docker/mysql/init.dev.sql` (subnet `172.25.0.0/24`, nginx su 8000, DB su 3307).
+  - [x] Allineare `Dockerfile` e `docker/entrypoint.sh` (`/opt/build-assets`, copia anche in `public/build`).
+  - [x] Allineare `docker/nginx/default.conf` (rimossa location `/build/`, favicon con `try_files`).
+  - [x] Aggiungere `schedule:work` a `docker/supervisor/worker.conf` (necessario per `app:deactivate-groups`).
+  - [x] Aggiornare `.dockerignore` (`public/build`, `public/hot`) e README (sezione Docker).
+  - [ ] Provare `docker compose -f docker-compose.dev.yml up -d --build` e verificare `http://localhost:8000`.

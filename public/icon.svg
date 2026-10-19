@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Icona sorgente del sito (lupo bianco su quadrato verde).
+     Da questo file il Dockerfile (stage icon-builder, docker/icons/generate-icons.sh)
+     genera favicon, apple-touch-icon, icone Android e site.webmanifest.
+     Per cambiare logo basta sostituire questo file e ricostruire l'immagine. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <title>Cavalcalupi</title>
+  <rect width="512" height="512" rx="112" fill="#15803d"/>
+  <!-- testa del lupo -->
+  <path fill="#ffffff" d="M128 88 L212 168 L256 156 L300 168 L384 88 L404 236 L372 330 L300 400 L256 440 L212 400 L140 330 L108 236 Z"/>
+  <!-- interno delle orecchie -->
+  <path fill="#15803d" d="M150 140 L192 178 L156 214 Z"/>
+  <path fill="#15803d" d="M362 140 L320 178 L356 214 Z"/>
+  <!-- occhi -->
+  <path fill="#15803d" d="M172 232 L226 252 L214 272 L168 258 Z"/>
+  <path fill="#15803d" d="M340 232 L286 252 L298 272 L344 258 Z"/>
+  <!-- naso -->
+  <path fill="#15803d" d="M228 384 L284 384 L256 418 Z"/>
+</svg>

@@ -15,6 +15,70 @@ Applicazione web per la gestione degli eventi associativi, assemblee e sessioni 
 
 ---
 
+## 🐳 Infrastruttura Docker
+
+L'infra segue lo stesso schema del progetto `unlimiteddb` (source of truth: i suoi `docker-compose.yml` e `docker-compose.dev.yml`). Un'unica immagine (`Dockerfile` multi-stage: composer, Vite, icone, PHP-FPM) usata da `app` e `worker`.
+
+| | Produzione (`docker-compose.yml`) | Sviluppo (`docker-compose.dev.yml`) |
+|---|---|---|
+| Immagine | `calendario-cavalcalupi:prod` | `calendario-cavalcalupi:dev` |
+| Accesso | Traefik, `calendario-cavalcalupi.mandich.dev` (rete esterna `proxy`) | `http://localhost:8000` |
+| MariaDB | solo rete interna | esposta su `localhost:3307` |
+| Utente DB | `calendario_cavalcalupi` senza password, subnet `172.24.0.0/24` | idem, subnet `172.25.0.0/24`, password da `DB_PASSWORD` nel `.env` (può essere vuota) |
+| Asset Vite/icone | volume `build_assets` su `public/build` | bind mount `./public/build` |
+| Worker | supervisor: 2 `queue:work` + `schedule:work` | solo `queue:work` |
+
+Note:
+- Il servizio `worker` di produzione esegue anche `schedule:work`: è quello che lancia `app:deactivate-groups` il 15 agosto.
+- Ad ogni avvio l'entrypoint (`docker/entrypoint.sh`) ricopia gli asset compilati dall'immagine (`/opt/build-assets`) in `public/build`, così il mount in dev non serve mai asset vecchi.
+- Le subnet dei due progetti sono diverse (`unlimiteddb` dev usa `172.30.0.0/24`) e così la porta del DB di sviluppo (3307), per poterli avviare insieme.
+
+```bash
+# sviluppo
+docker compose -f docker-compose.dev.yml up -d --build
+docker compose -f docker-compose.dev.yml exec app php artisan migrate --seed
+
+# produzione
+docker compose up -d --build
+```
+
+---
+
+## 🎨 Palette e Componenti UI
+
+Il sito usa una palette **verde e bianco** (tema chiaro). I colori sono definiti in un solo punto, `resources/css/app.css`:
+
+- `@theme` → scala `brand-50 … brand-950` (verde, `brand-600` = `#16a34a`, `brand-700` = `#15803d`). Si usa come qualsiasi colore Tailwind: `bg-brand-600`, `text-brand-800`, `border-brand-100`. **Per cambiare colore al sito basta modificare questa scala.**
+- `@layer components` → classi riutilizzate nelle viste: `.panel` (card bianca con bordo verde chiaro), `.field` / `.field-label` (input, select, textarea), `.btn-primary` (azione principale verde), `.btn-secondary` (azione secondaria bianca con bordo verde). Eventuali variazioni locali (es. padding) si aggiungono come utility Tailwind sull'elemento.
+
+| Elemento | Colore |
+|---|---|
+| Sfondo pagina, header, pannelli | bianco |
+| Sezioni secondarie, hover | `brand-50` / `brand-100` |
+| Titoli | `brand-950` |
+| Testo / testo secondario | `gray-900` / `gray-500` |
+| Footer, `theme-color`, sfondo icona | `brand-800` / `brand-700` |
+| Sessione di gioco | verde (`brand`) |
+| Assemblea | `rose` |
+| Evento associativo | `amber` |
+| Ruoli: Admin / CD / Membro | `red` / `amber` / verde |
+
+I colori dei tipi di evento (rose, amber) restano volutamente diversi dal verde per distinguere a colpo d'occhio le categorie nel calendario.
+
+---
+
+## 🖼️ Icone del Sito
+
+Le icone (favicon, `apple-touch-icon`, icone Android, `site.webmanifest`) sono **generate automaticamente dal Dockerfile** a partire da un unico sorgente: `public/icon.svg`.
+
+- Stage `icon-builder` del `Dockerfile` (debian + `librsvg2-bin` + `imagemagick`) esegue `docker/icons/generate-icons.sh`, che produce in `/out/icons`: `favicon-16x16.png`, `favicon-32x32.png`, `favicon.ico` (16/32/48), `apple-touch-icon.png` (180, sfondo pieno perché iOS non gestisce la trasparenza), `android-chrome-192x192.png`, `android-chrome-512x512.png`, `site.webmanifest`.
+- Le icone finiscono in `/opt/build-assets/icons` (e in `public/build/icons`) insieme agli asset Vite: l'entrypoint le copia in `public/build` a ogni avvio (volume `build_assets` in produzione) e nginx le serve su `/build/icons/*`. `/favicon.ico` è servito da nginx con la stessa icona. `docker-compose.yml` non richiede configurazioni dedicate.
+- La view `resources/views/layouts/favicons.blade.php` (inclusa da `layouts.app`) contiene i `<link>` alle icone; l'SVG è linkato direttamente (`/icon.svg`), quindi l'icona funziona anche in sviluppo locale senza Docker. Lo stesso SVG è usato come logo nell'header e nelle pagine di login/registrazione.
+- **Per cambiare icona**: sostituire `public/icon.svg` (quadrato, meglio 512x512) e ricostruire l'immagine (`docker compose build`). Lo stage viene ricostruito solo se cambia l'SVG o lo script.
+- Variabili opzionali dello script (`ICON_APP_NAME`, `ICON_THEME`, `ICON_APPLE_BG`, `ICON_BASE_URL`) sono documentate nell'intestazione di `docker/icons/generate-icons.sh`.
+
+---
+
 ## 👥 Ruoli e Permessi
 
 | Ruolo | Descrizione & Permessi |

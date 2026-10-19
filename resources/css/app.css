@@ -9,4 +9,43 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Palette del sito: verde (brand) + bianco. Per cambiare colore basta modificare questa scala. */
+    --color-brand-50: #f0fdf4;
+    --color-brand-100: #dcfce7;
+    --color-brand-200: #bbf7d0;
+    --color-brand-300: #86efac;
+    --color-brand-400: #4ade80;
+    --color-brand-500: #22c55e;
+    --color-brand-600: #16a34a;
+    --color-brand-700: #15803d;
+    --color-brand-800: #166534;
+    --color-brand-900: #14532d;
+    --color-brand-950: #052e16;
+}
+
+/* Componenti riusati nelle viste, così la palette resta definita in un solo punto. */
+@layer components {
+    .panel {
+        @apply bg-white border border-brand-100 shadow-sm;
+    }
+
+    .field-label {
+        @apply block text-xs font-semibold uppercase tracking-wider text-brand-900 mb-1.5;
+    }
+
+    .field {
+        @apply w-full px-3.5 py-2.5 rounded-xl bg-white border border-gray-300 text-gray-900 placeholder-gray-400 text-sm transition-all
+            focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500;
+    }
+
+    .btn-primary {
+        @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white
+            text-xs font-semibold shadow-md shadow-brand-600/20 transition-all;
+    }
+
+    .btn-secondary {
+        @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-brand-50 text-brand-800
+            border border-brand-200 text-xs font-semibold transition-all;
+    }
 }
