@@ -2,7 +2,7 @@
 FROM node:20-alpine AS node-builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 COPY vite.config.js ./
 COPY resources/ ./resources/
 COPY public/ ./public/
