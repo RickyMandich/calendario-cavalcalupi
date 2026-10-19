@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a59389decc3f6069f384f7a80bf3f0f9",
+    "content-hash": "94e4044d082ecd7650ddcb4e7b4c6a8c",
     "packages": [
         {
             "name": "brick/math",
@@ -2029,6 +2029,282 @@
             "time": "2026-10-16T15:19:33+00:00"
         },
         {
+            "name": "mkocansey/bladewind",
+            "version": "v5.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bladewindui/ui.git",
+                "reference": "29adfefb751278327edd229effba25c11438e4cd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bladewindui/ui/zipball/29adfefb751278327edd229effba25c11438e4cd",
+                "reference": "29adfefb751278327edd229effba25c11438e4cd",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
+                "php": ">=8.1"
+            },
+            "replace": {
+                "bladewindui/accordion": "5.1.0",
+                "bladewindui/alert": "5.1.0",
+                "bladewindui/avatar": "5.1.0",
+                "bladewindui/bell": "5.1.0",
+                "bladewindui/breadcrumbs": "5.1.0",
+                "bladewindui/button": "5.1.0",
+                "bladewindui/calendar": "5.1.0",
+                "bladewindui/card": "5.1.0",
+                "bladewindui/carousel": "5.1.0",
+                "bladewindui/centered-content": "5.1.0",
+                "bladewindui/chart": "5.1.0",
+                "bladewindui/chat": "5.1.0",
+                "bladewindui/checkbox": "5.1.0",
+                "bladewindui/checkcards": "5.1.0",
+                "bladewindui/code": "5.1.0",
+                "bladewindui/code-block": "5.1.0",
+                "bladewindui/colorpicker": "5.1.0",
+                "bladewindui/command-palette": "5.1.0",
+                "bladewindui/contact-card": "5.1.0",
+                "bladewindui/content": "5.1.0",
+                "bladewindui/context-menu": "5.1.0",
+                "bladewindui/copy-button": "5.1.0",
+                "bladewindui/core": "5.1.0",
+                "bladewindui/credit-card": "5.1.0",
+                "bladewindui/currency-input": "5.1.0",
+                "bladewindui/data-grid": "5.1.0",
+                "bladewindui/datepicker": "5.1.0",
+                "bladewindui/description-list": "5.1.0",
+                "bladewindui/divider": "5.1.0",
+                "bladewindui/drawer": "5.1.0",
+                "bladewindui/dropmenu": "5.1.0",
+                "bladewindui/empty-state": "5.1.0",
+                "bladewindui/file-preview": "5.1.0",
+                "bladewindui/filepicker": "5.1.0",
+                "bladewindui/forms": "5.1.0",
+                "bladewindui/horizontal-line-graph": "5.1.0",
+                "bladewindui/icon": "5.1.0",
+                "bladewindui/inline-edit": "5.1.0",
+                "bladewindui/input": "5.1.0",
+                "bladewindui/kanban": "5.1.0",
+                "bladewindui/kbd": "5.1.0",
+                "bladewindui/listview": "5.1.0",
+                "bladewindui/meter": "5.1.0",
+                "bladewindui/modal": "5.1.0",
+                "bladewindui/navigation": "5.1.0",
+                "bladewindui/notification": "5.1.0",
+                "bladewindui/number": "5.1.0",
+                "bladewindui/pagination": "5.1.0",
+                "bladewindui/password-meter": "5.1.0",
+                "bladewindui/popover": "5.1.0",
+                "bladewindui/progress": "5.1.0",
+                "bladewindui/radio": "5.1.0",
+                "bladewindui/rating": "5.1.0",
+                "bladewindui/scheduler": "5.1.0",
+                "bladewindui/script": "5.1.0",
+                "bladewindui/select": "5.1.0",
+                "bladewindui/sidebar": "5.1.0",
+                "bladewindui/slider": "5.1.0",
+                "bladewindui/sortable": "5.1.0",
+                "bladewindui/spinner": "5.1.0",
+                "bladewindui/statistic": "5.1.0",
+                "bladewindui/stepper": "5.1.0",
+                "bladewindui/tab": "5.1.0",
+                "bladewindui/table": "5.1.0",
+                "bladewindui/tag": "5.1.0",
+                "bladewindui/textarea": "5.1.0",
+                "bladewindui/theme-switcher": "5.1.0",
+                "bladewindui/timeline": "5.1.0",
+                "bladewindui/timepicker": "5.1.0",
+                "bladewindui/toggle": "5.1.0",
+                "bladewindui/tooltip": "5.1.0",
+                "bladewindui/transfer-list": "5.1.0"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^10.0",
+                "phpunit/phpunit": "^11.0",
+                "symplify/monorepo-builder": "^11.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Mkocansey\\Bladewind\\Core\\BladewindCoreServiceProvider",
+                        "Mkocansey\\Bladewind\\Icon\\BladewindIconServiceProvider",
+                        "Mkocansey\\Bladewind\\Script\\BladewindScriptServiceProvider",
+                        "Mkocansey\\Bladewind\\Spinner\\BladewindSpinnerServiceProvider",
+                        "Mkocansey\\Bladewind\\Button\\BladewindButtonServiceProvider",
+                        "Mkocansey\\Bladewind\\Breadcrumbs\\BladewindBreadcrumbsServiceProvider",
+                        "Mkocansey\\Bladewind\\Stepper\\BladewindStepperServiceProvider",
+                        "Mkocansey\\Bladewind\\Sidebar\\BladewindSidebarServiceProvider",
+                        "Mkocansey\\Bladewind\\CommandPalette\\BladewindCommandPaletteServiceProvider",
+                        "Mkocansey\\Bladewind\\DataGrid\\BladewindDataGridServiceProvider",
+                        "Mkocansey\\Bladewind\\Calendar\\BladewindCalendarServiceProvider",
+                        "Mkocansey\\Bladewind\\Alert\\BladewindAlertServiceProvider",
+                        "Mkocansey\\Bladewind\\Bell\\BladewindBellServiceProvider",
+                        "Mkocansey\\Bladewind\\Modal\\BladewindModalServiceProvider",
+                        "Mkocansey\\Bladewind\\Drawer\\BladewindDrawerServiceProvider",
+                        "Mkocansey\\Bladewind\\Divider\\BladewindDividerServiceProvider",
+                        "Mkocansey\\Bladewind\\Table\\BladewindTableServiceProvider",
+                        "Mkocansey\\Bladewind\\Input\\BladewindInputServiceProvider",
+                        "Mkocansey\\Bladewind\\Textarea\\BladewindTextareaServiceProvider",
+                        "Mkocansey\\Bladewind\\Select\\BladewindSelectServiceProvider",
+                        "Mkocansey\\Bladewind\\Checkbox\\BladewindCheckboxServiceProvider",
+                        "Mkocansey\\Bladewind\\Radio\\BladewindRadioServiceProvider",
+                        "Mkocansey\\Bladewind\\Toggle\\BladewindToggleServiceProvider",
+                        "Mkocansey\\Bladewind\\Datepicker\\BladewindDatepickerServiceProvider",
+                        "Mkocansey\\Bladewind\\Timepicker\\BladewindTimepickerServiceProvider",
+                        "Mkocansey\\Bladewind\\Colorpicker\\BladewindColorpickerServiceProvider",
+                        "Mkocansey\\Bladewind\\Filepicker\\BladewindFilepickerServiceProvider",
+                        "Mkocansey\\Bladewind\\FilePreview\\BladewindFilePreviewServiceProvider",
+                        "Mkocansey\\Bladewind\\Slider\\BladewindSliderServiceProvider",
+                        "Mkocansey\\Bladewind\\Checkcards\\BladewindCheckcardsServiceProvider",
+                        "Mkocansey\\Bladewind\\Number\\BladewindNumberServiceProvider",
+                        "Mkocansey\\Bladewind\\CurrencyInput\\BladewindCurrencyInputServiceProvider",
+                        "Mkocansey\\Bladewind\\PasswordMeter\\BladewindPasswordMeterServiceProvider",
+                        "Mkocansey\\Bladewind\\TransferList\\BladewindTransferListServiceProvider",
+                        "Mkocansey\\Bladewind\\InlineEdit\\BladewindInlineEditServiceProvider",
+                        "Mkocansey\\Bladewind\\Code\\BladewindCodeServiceProvider",
+                        "Mkocansey\\Bladewind\\CodeBlock\\BladewindCodeBlockServiceProvider",
+                        "Mkocansey\\Bladewind\\Card\\BladewindCardServiceProvider",
+                        "Mkocansey\\Bladewind\\Chat\\BladewindChatServiceProvider",
+                        "Mkocansey\\Bladewind\\Carousel\\BladewindCarouselServiceProvider",
+                        "Mkocansey\\Bladewind\\Kanban\\BladewindKanbanServiceProvider",
+                        "Mkocansey\\Bladewind\\Scheduler\\BladewindSchedulerServiceProvider",
+                        "Mkocansey\\Bladewind\\CreditCard\\BladewindCreditCardServiceProvider",
+                        "Mkocansey\\Bladewind\\ContactCard\\BladewindContactCardServiceProvider",
+                        "Mkocansey\\Bladewind\\Avatar\\BladewindAvatarServiceProvider",
+                        "Mkocansey\\Bladewind\\Accordion\\BladewindAccordionServiceProvider",
+                        "Mkocansey\\Bladewind\\Tag\\BladewindTagServiceProvider",
+                        "Mkocansey\\Bladewind\\Kbd\\BladewindKbdServiceProvider",
+                        "Mkocansey\\Bladewind\\CopyButton\\BladewindCopyButtonServiceProvider",
+                        "Mkocansey\\Bladewind\\Meter\\BladewindMeterServiceProvider",
+                        "Mkocansey\\Bladewind\\DescriptionList\\BladewindDescriptionListServiceProvider",
+                        "Mkocansey\\Bladewind\\Timeline\\BladewindTimelineServiceProvider",
+                        "Mkocansey\\Bladewind\\Statistic\\BladewindStatisticServiceProvider",
+                        "Mkocansey\\Bladewind\\Rating\\BladewindRatingServiceProvider",
+                        "Mkocansey\\Bladewind\\HorizontalLineGraph\\BladewindHorizontalLineGraphServiceProvider",
+                        "Mkocansey\\Bladewind\\EmptyState\\BladewindEmptyStateServiceProvider",
+                        "Mkocansey\\Bladewind\\CenteredContent\\BladewindCenteredContentServiceProvider",
+                        "Mkocansey\\Bladewind\\Chart\\BladewindChartServiceProvider",
+                        "Mkocansey\\Bladewind\\Progress\\BladewindProgressServiceProvider",
+                        "Mkocansey\\Bladewind\\Listview\\BladewindListviewServiceProvider",
+                        "Mkocansey\\Bladewind\\Tooltip\\BladewindTooltipServiceProvider",
+                        "Mkocansey\\Bladewind\\Popover\\BladewindPopoverServiceProvider",
+                        "Mkocansey\\Bladewind\\Sortable\\BladewindSortableServiceProvider",
+                        "Mkocansey\\Bladewind\\Tab\\BladewindTabServiceProvider",
+                        "Mkocansey\\Bladewind\\Dropmenu\\BladewindDropmenuServiceProvider",
+                        "Mkocansey\\Bladewind\\ContextMenu\\BladewindContextMenuServiceProvider",
+                        "Mkocansey\\Bladewind\\Pagination\\BladewindPaginationServiceProvider",
+                        "Mkocansey\\Bladewind\\ThemeSwitcher\\BladewindThemeSwitcherServiceProvider",
+                        "Mkocansey\\Bladewind\\Notification\\BladewindNotificationServiceProvider",
+                        "Mkocansey\\Bladewind\\BladewindServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "files": [
+                    "packages/core/src/BladewindHelpers.php"
+                ],
+                "psr-4": {
+                    "Mkocansey\\Bladewind\\": "packages/meta/src/",
+                    "Mkocansey\\Bladewind\\Kbd\\": "packages/kbd/src/",
+                    "Mkocansey\\Bladewind\\Tab\\": "packages/tab/src/",
+                    "Mkocansey\\Bladewind\\Tag\\": "packages/tag/src/",
+                    "Mkocansey\\Bladewind\\Bell\\": "packages/bell/src/",
+                    "Mkocansey\\Bladewind\\Card\\": "packages/card/src/",
+                    "Mkocansey\\Bladewind\\Chat\\": "packages/chat/src/",
+                    "Mkocansey\\Bladewind\\Code\\": "packages/code/src/",
+                    "Mkocansey\\Bladewind\\Core\\": "packages/core/src/",
+                    "Mkocansey\\Bladewind\\Icon\\": "packages/icon/src/",
+                    "Mkocansey\\Bladewind\\Alert\\": "packages/alert/src/",
+                    "Mkocansey\\Bladewind\\Chart\\": "packages/chart/src/",
+                    "Mkocansey\\Bladewind\\Input\\": "packages/input/src/",
+                    "Mkocansey\\Bladewind\\Meter\\": "packages/meter/src/",
+                    "Mkocansey\\Bladewind\\Modal\\": "packages/modal/src/",
+                    "Mkocansey\\Bladewind\\Radio\\": "packages/radio/src/",
+                    "Mkocansey\\Bladewind\\Table\\": "packages/table/src/",
+                    "Mkocansey\\Bladewind\\Avatar\\": "packages/avatar/src/",
+                    "Mkocansey\\Bladewind\\Button\\": "packages/button/src/",
+                    "Mkocansey\\Bladewind\\Drawer\\": "packages/drawer/src/",
+                    "Mkocansey\\Bladewind\\Kanban\\": "packages/kanban/src/",
+                    "Mkocansey\\Bladewind\\Number\\": "packages/number/src/",
+                    "Mkocansey\\Bladewind\\Rating\\": "packages/rating/src/",
+                    "Mkocansey\\Bladewind\\Script\\": "packages/script/src/",
+                    "Mkocansey\\Bladewind\\Select\\": "packages/select/src/",
+                    "Mkocansey\\Bladewind\\Slider\\": "packages/slider/src/",
+                    "Mkocansey\\Bladewind\\Toggle\\": "packages/toggle/src/",
+                    "Mkocansey\\Bladewind\\Divider\\": "packages/divider/src/",
+                    "Mkocansey\\Bladewind\\Popover\\": "packages/popover/src/",
+                    "Mkocansey\\Bladewind\\Sidebar\\": "packages/sidebar/src/",
+                    "Mkocansey\\Bladewind\\Spinner\\": "packages/spinner/src/",
+                    "Mkocansey\\Bladewind\\Stepper\\": "packages/stepper/src/",
+                    "Mkocansey\\Bladewind\\Tooltip\\": "packages/tooltip/src/",
+                    "Mkocansey\\Bladewind\\Calendar\\": "packages/calendar/src/",
+                    "Mkocansey\\Bladewind\\Carousel\\": "packages/carousel/src/",
+                    "Mkocansey\\Bladewind\\Checkbox\\": "packages/checkbox/src/",
+                    "Mkocansey\\Bladewind\\DataGrid\\": "packages/data-grid/src/",
+                    "Mkocansey\\Bladewind\\Dropmenu\\": "packages/dropmenu/src/",
+                    "Mkocansey\\Bladewind\\Listview\\": "packages/listview/src/",
+                    "Mkocansey\\Bladewind\\Progress\\": "packages/progress/src/",
+                    "Mkocansey\\Bladewind\\Sortable\\": "packages/sortable/src/",
+                    "Mkocansey\\Bladewind\\Textarea\\": "packages/textarea/src/",
+                    "Mkocansey\\Bladewind\\Timeline\\": "packages/timeline/src/",
+                    "Mkocansey\\Bladewind\\Accordion\\": "packages/accordion/src/",
+                    "Mkocansey\\Bladewind\\CodeBlock\\": "packages/code-block/src/",
+                    "Mkocansey\\Bladewind\\Scheduler\\": "packages/scheduler/src/",
+                    "Mkocansey\\Bladewind\\Statistic\\": "packages/statistic/src/",
+                    "Mkocansey\\Bladewind\\Checkcards\\": "packages/checkcards/src/",
+                    "Mkocansey\\Bladewind\\CopyButton\\": "packages/copy-button/src/",
+                    "Mkocansey\\Bladewind\\CreditCard\\": "packages/credit-card/src/",
+                    "Mkocansey\\Bladewind\\Datepicker\\": "packages/datepicker/src/",
+                    "Mkocansey\\Bladewind\\EmptyState\\": "packages/empty-state/src/",
+                    "Mkocansey\\Bladewind\\Filepicker\\": "packages/filepicker/src/",
+                    "Mkocansey\\Bladewind\\InlineEdit\\": "packages/inline-edit/src/",
+                    "Mkocansey\\Bladewind\\Pagination\\": "packages/pagination/src/",
+                    "Mkocansey\\Bladewind\\Timepicker\\": "packages/timepicker/src/",
+                    "Mkocansey\\Bladewind\\Breadcrumbs\\": "packages/breadcrumbs/src/",
+                    "Mkocansey\\Bladewind\\Colorpicker\\": "packages/colorpicker/src/",
+                    "Mkocansey\\Bladewind\\ContactCard\\": "packages/contact-card/src/",
+                    "Mkocansey\\Bladewind\\ContextMenu\\": "packages/context-menu/src/",
+                    "Mkocansey\\Bladewind\\FilePreview\\": "packages/file-preview/src/",
+                    "Mkocansey\\Bladewind\\Notification\\": "packages/notification/src/",
+                    "Mkocansey\\Bladewind\\TransferList\\": "packages/transfer-list/src/",
+                    "Mkocansey\\Bladewind\\CurrencyInput\\": "packages/currency-input/src/",
+                    "Mkocansey\\Bladewind\\PasswordMeter\\": "packages/password-meter/src/",
+                    "Mkocansey\\Bladewind\\ThemeSwitcher\\": "packages/theme-switcher/src/",
+                    "Mkocansey\\Bladewind\\CommandPalette\\": "packages/command-palette/src/",
+                    "Mkocansey\\Bladewind\\CenteredContent\\": "packages/centered-content/src/",
+                    "Mkocansey\\Bladewind\\DescriptionList\\": "packages/description-list/src/",
+                    "Mkocansey\\Bladewind\\HorizontalLineGraph\\": "packages/horizontal-line-graph/src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Michael K. Ocansey",
+                    "email": "mike@bladewindui.com"
+                }
+            ],
+            "description": "BladewindUI — elegant Laravel Blade UI components powered by TailwindCSS",
+            "keywords": [
+                "Ui Components",
+                "blade",
+                "bladewindui",
+                "laravel",
+                "tailwindcss"
+            ],
+            "support": {
+                "issues": "https://github.com/bladewindui/ui/issues",
+                "source": "https://github.com/bladewindui/ui/tree/v5.1.0"
+            },
+            "abandoned": "bladewindui/ui",
+            "time": "2026-09-10T00:47:06+00:00"
+        },
+        {
             "name": "monolog/monolog",
             "version": "3.12.1",
             "source": {
@@ -2540,6 +2816,147 @@
                 }
             ],
             "time": "2026-02-16T23:10:27+00:00"
+        },
+        {
+            "name": "opcodesio/log-viewer",
+            "version": "v3.24.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/opcodesio/log-viewer.git",
+                "reference": "8afefde09f6005f7d8ee3f628aa311f27c91d125"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/opcodesio/log-viewer/zipball/8afefde09f6005f7d8ee3f628aa311f27c91d125",
+                "reference": "8afefde09f6005f7d8ee3f628aa311f27c91d125",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/contracts": "^8.0|^9.0|^10.0|^11.0|^12.0|^13.0",
+                "opcodesio/mail-parser": "^0.2.3",
+                "php": "^8.0"
+            },
+            "conflict": {
+                "arcanedev/log-viewer": "^8.0"
+            },
+            "require-dev": {
+                "guzzlehttp/guzzle": "^7.2",
+                "itsgoingd/clockwork": "^5.1",
+                "laravel/pint": "^1.0",
+                "nunomaduro/collision": "^7.0|^8.0",
+                "orchestra/testbench": "^7.6|^8.0|^9.5|^10.0|^11.0",
+                "pestphp/pest": "^2.0|^3.7|^4.4",
+                "pestphp/pest-plugin-laravel": "^2.0|^3.1|^4.1",
+                "spatie/test-time": "^1.3"
+            },
+            "suggest": {
+                "guzzlehttp/guzzle": "Required for multi-host support. ^7.2"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "LogViewer": "Opcodes\\LogViewer\\Facades\\LogViewer"
+                    },
+                    "providers": [
+                        "Opcodes\\LogViewer\\LogViewerServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Opcodes\\LogViewer\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Arunas Skirius",
+                    "email": "arukomp@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Fast and easy-to-use log viewer for your Laravel application",
+            "homepage": "https://github.com/opcodesio/log-viewer",
+            "keywords": [
+                "arukompas",
+                "better-log-viewer",
+                "laravel",
+                "log viewer",
+                "logs",
+                "opcodesio"
+            ],
+            "support": {
+                "issues": "https://github.com/opcodesio/log-viewer/issues",
+                "source": "https://github.com/opcodesio/log-viewer/tree/v3.24.0"
+            },
+            "funding": [
+                {
+                    "url": "https://www.buymeacoffee.com/arunas",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/arukompas",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-03-15T19:31:14+00:00"
+        },
+        {
+            "name": "opcodesio/mail-parser",
+            "version": "v0.2.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/opcodesio/mail-parser.git",
+                "reference": "7151e4183288e46d911a76803c5545a1c8822226"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/opcodesio/mail-parser/zipball/7151e4183288e46d911a76803c5545a1c8822226",
+                "reference": "7151e4183288e46d911a76803c5545a1c8822226",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.0"
+            },
+            "require-dev": {
+                "pestphp/pest": "^2.16",
+                "symfony/var-dumper": "^6.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Opcodes\\MailParser\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Arunas Skirius",
+                    "email": "arukomp@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Parse emails without the mailparse extension",
+            "keywords": [
+                "arukompas",
+                "email",
+                "email parser",
+                "mail",
+                "opcodesio",
+                "php"
+            ],
+            "support": {
+                "issues": "https://github.com/opcodesio/mail-parser/issues",
+                "source": "https://github.com/opcodesio/mail-parser/tree/v0.2.4"
+            },
+            "time": "2026-06-11T08:50:37+00:00"
         },
         {
             "name": "phpoption/phpoption",
@@ -3304,6 +3721,149 @@
                 "source": "https://github.com/ramsey/uuid/tree/4.9.4"
             },
             "time": "2026-09-16T11:39:30+00:00"
+        },
+        {
+            "name": "spatie/icalendar-generator",
+            "version": "3.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/icalendar-generator.git",
+                "reference": "6817d3f405563eca1afc9ea870077a898e11bc27"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/spatie/icalendar-generator/zipball/6817d3f405563eca1afc9ea870077a898e11bc27",
+                "reference": "6817d3f405563eca1afc9ea870077a898e11bc27",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "php": "^8.2"
+            },
+            "require-dev": {
+                "ext-json": "*",
+                "larapack/dd": "^1.1",
+                "nesbot/carbon": "^3.5",
+                "pestphp/pest": "^2.34 || ^3.0 || ^4.0",
+                "phpstan/phpstan": "^2.0",
+                "spatie/pest-plugin-snapshots": "^2.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Spatie\\IcalendarGenerator\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ruben Van Assche",
+                    "email": "ruben@spatie.be",
+                    "homepage": "https://spatie.be",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Build calendars in the iCalendar format",
+            "homepage": "https://github.com/spatie/icalendar-generator",
+            "keywords": [
+                "calendar",
+                "iCalendar",
+                "ical",
+                "ics",
+                "spatie"
+            ],
+            "support": {
+                "issues": "https://github.com/spatie/icalendar-generator/issues",
+                "source": "https://github.com/spatie/icalendar-generator/tree/3.3.0"
+            },
+            "time": "2026-03-18T09:51:41+00:00"
+        },
+        {
+            "name": "spatie/laravel-permission",
+            "version": "6.25.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/laravel-permission.git",
+                "reference": "d7d4cb0d58616722f1afc90e0484e4825155b9b3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/spatie/laravel-permission/zipball/d7d4cb0d58616722f1afc90e0484e4825155b9b3",
+                "reference": "d7d4cb0d58616722f1afc90e0484e4825155b9b3",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/auth": "^8.12|^9.0|^10.0|^11.0|^12.0|^13.0",
+                "illuminate/container": "^8.12|^9.0|^10.0|^11.0|^12.0|^13.0",
+                "illuminate/contracts": "^8.12|^9.0|^10.0|^11.0|^12.0|^13.0",
+                "illuminate/database": "^8.12|^9.0|^10.0|^11.0|^12.0|^13.0",
+                "php": "^8.0"
+            },
+            "require-dev": {
+                "laravel/passport": "^11.0|^12.0|^13.0",
+                "laravel/pint": "^1.0",
+                "orchestra/testbench": "^6.23|^7.0|^8.0|^9.0|^10.0|^11.0",
+                "pestphp/pest": "^2.0|^3.0|^4.0",
+                "pestphp/pest-plugin-laravel": "^2.0|^3.0|^4.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Spatie\\Permission\\PermissionServiceProvider"
+                    ]
+                },
+                "branch-alias": {
+                    "dev-main": "6.x-dev",
+                    "dev-master": "6.x-dev"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/helpers.php"
+                ],
+                "psr-4": {
+                    "Spatie\\Permission\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Freek Van der Herten",
+                    "email": "freek@spatie.be",
+                    "homepage": "https://spatie.be",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Permission handling for Laravel 8.0 and up",
+            "homepage": "https://github.com/spatie/laravel-permission",
+            "keywords": [
+                "acl",
+                "laravel",
+                "permission",
+                "permissions",
+                "rbac",
+                "roles",
+                "security",
+                "spatie"
+            ],
+            "support": {
+                "issues": "https://github.com/spatie/laravel-permission/issues",
+                "source": "https://github.com/spatie/laravel-permission/tree/6.25.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/spatie",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-03-17T22:46:46+00:00"
         },
         {
             "name": "symfony/clock",
