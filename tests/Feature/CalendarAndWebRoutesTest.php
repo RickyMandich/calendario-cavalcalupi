@@ -26,6 +26,24 @@ class CalendarAndWebRoutesTest extends TestCase
         $response->assertSee('Calendario Attività');
     }
 
+    public function test_authenticated_user_even_with_null_token_loads_calendar_and_auto_generates_token(): void
+    {
+        $user = User::create([
+            'name' => 'Legacy User',
+            'email' => 'legacy@test.com',
+            'password' => bcrypt('secret123'),
+        ]);
+        \Illuminate\Support\Facades\DB::table('users')->where('id', $user->id)->update(['ics_token' => null]);
+        $user = $user->fresh();
+
+        $this->assertNull($user->getRawOriginal('ics_token'));
+
+        $response = $this->actingAs($user)->get('/calendar');
+        $response->assertStatus(200);
+
+        $this->assertNotNull(\Illuminate\Support\Facades\DB::table('users')->where('id', $user->id)->value('ics_token'));
+    }
+
     public function test_login_and_quick_login(): void
     {
         $response = $this->get('/quick-login/admin');

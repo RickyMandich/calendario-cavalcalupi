@@ -54,11 +54,24 @@ class User extends Authenticatable
 
     protected static function booted(): void
     {
-        static::creating(function (User $user) {
+        static::saving(function (User $user) {
             if (empty($user->ics_token)) {
                 $user->ics_token = Str::random(64);
             }
         });
+    }
+
+    /**
+     * Get ics_token, automatically generating and saving one if null.
+     */
+    public function getIcsTokenAttribute(?string $value): string
+    {
+        if (empty($value)) {
+            $value = Str::random(64);
+            $this->forceFill(['ics_token' => $value])->saveQuietly();
+        }
+
+        return $value;
     }
 
     /**

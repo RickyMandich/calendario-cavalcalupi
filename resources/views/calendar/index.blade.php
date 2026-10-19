@@ -211,7 +211,7 @@
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Il tuo URL ICS Personale:</label>
             <div class="flex items-center gap-2">
                 <input type="text" id="icsUrlInput" readonly
-                       value="{{ route('calendar.ics', Auth::user()->ics_token) }}"
+                       value="{{ route('calendar.ics', ['token' => Auth::user()->ics_token]) }}"
                        class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs font-mono text-indigo-300 focus:outline-none">
                 <button type="button" onclick="copyIcsUrl()"
                         class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold whitespace-nowrap shadow-md transition-all">
@@ -230,7 +230,7 @@
         </div>
 
         <div class="mt-6 flex justify-end">
-            <a href="{{ route('calendar.ics', Auth::user()->ics_token) }}" 
+            <a href="{{ route('calendar.ics', ['token' => Auth::user()->ics_token]) }}" 
                class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition-colors mr-2">
                 Scarica File .ics
             </a>
