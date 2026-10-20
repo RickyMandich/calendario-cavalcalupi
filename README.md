@@ -33,6 +33,7 @@ Note:
 - Ad ogni avvio l'entrypoint (`docker/entrypoint.sh`) ricopia gli asset compilati dall'immagine (`/opt/build-assets`) in `public/build`, così il mount in dev non serve mai asset vecchi.
 - Le subnet dei due progetti sono diverse (`unlimiteddb` dev usa `172.30.0.0/24`) e così la porta del DB di sviluppo (3307), per poterli avviare insieme.
 - `public/build/` deve esistere sull'host (c'è un `.gitkeep` versionato): in produzione nginx monta `./public` in sola lettura e Docker non può creare lì il mountpoint di `build_assets`; senza la cartella il container nginx non parte (`read-only file system`).
+- In produzione l'app sta dietro Cloudflare e Traefik, che terminano il TLS: `bootstrap/app.php` dichiara i proxy fidati (`trustProxies(at: '*')`) così Laravel genera URL `https://` (link del feed ICS, asset). Senza, il link ICS mostrato nel modale era `http://` e Google Calendar non riusciva a sincronizzarlo.
 
 ```bash
 # sviluppo

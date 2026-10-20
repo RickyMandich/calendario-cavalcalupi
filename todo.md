@@ -63,3 +63,9 @@
   - [x] Aggiungere `schedule:work` a `docker/supervisor/worker.conf` (necessario per `app:deactivate-groups`).
   - [x] Aggiornare `.dockerignore` (`public/build`, `public/hot`) e README (sezione Docker).
   - [ ] Provare `docker compose -f docker-compose.dev.yml up -d --build` e verificare `http://localhost:8000`.
+
+- [ ] **Fase 11: Feed ICS non sincronizzato su Google Calendar**
+  - [x] Causa individuata: il link ICS nel modale era `http://` (Laravel dietro Traefik/Cloudflare senza proxy fidati).
+  - [x] Dichiarare `trustProxies(at: '*')` in `bootstrap/app.php` e documentarlo nel README.
+  - [ ] Dopo il deploy: verificare che il link nel modale inizi con `https://`, rimuovere il calendario da Google Calendar e riaggiungerlo.
+  - [ ] Se ancora vuoto: controllare i log nginx (`grep calendar/ics`) e le regole Cloudflare (Bot Fight Mode / WAF) su `/calendar/ics/*`.
