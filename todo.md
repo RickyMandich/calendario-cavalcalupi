@@ -69,3 +69,8 @@
   - [x] Dichiarare `trustProxies(at: '*')` in `bootstrap/app.php` e documentarlo nel README.
   - [ ] Dopo il deploy: verificare che il link nel modale inizi con `https://`, rimuovere il calendario da Google Calendar e riaggiungerlo.
   - [ ] Se ancora vuoto: controllare i log nginx (`grep calendar/ics`) e le regole Cloudflare (Bot Fight Mode / WAF) su `/calendar/ics/*`.
+
+- [ ] **Fase 12: Orari del feed ICS sfasati di 2 ore su Google Calendar**
+  - [x] `IcsCalendarController`: gli orari vengono esportati con fuso esplicito `Europe/Rome` (`shiftTimezone`), indipendente dal fuso con cui Carbon li legge.
+  - [x] Test `test_feed_exports_times_in_rome_timezone_regardless_of_php_default_timezone`.
+  - [ ] Dopo il deploy: verificare su Google Calendar (anche per le sessioni già create) e controllare `config('app.timezone')` sul server.

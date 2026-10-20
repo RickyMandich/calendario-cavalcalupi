@@ -17,7 +17,7 @@ class IcsCalendarController extends Controller
     {
         $user = User::where('ics_token', $token)->first();
 
-        if (!$user) {
+        if (! $user) {
             abort(404, 'Feed calendario non trovato.');
         }
 
@@ -35,13 +35,16 @@ class IcsCalendarController extends Controller
             ->orderBy('start_time')
             ->get();
 
-        $calendar = Calendar::create('Calendario Cavalcalupi - ' . $user->name);
+        $calendar = Calendar::create('Calendario Cavalcalupi - '.$user->name);
 
         foreach ($events as $event) {
+            $startsAt = $event->start_time->copy()->shiftTimezone(config('app.timezone'));
+            $endsAt = $event->end_time->copy()->shiftTimezone(config('app.timezone'));
+
             $icsEvent = IcsEvent::create($event->title)
-                ->uniqueIdentifier('cavalcalupi-event-' . $event->id)
-                ->startsAt($event->start_time)
-                ->endsAt($event->end_time);
+                ->uniqueIdentifier('cavalcalupi-event-'.$event->id)
+                ->startsAt($startsAt)
+                ->endsAt($endsAt);
 
             $descriptionParts = [];
             if ($event->description) {
@@ -49,7 +52,7 @@ class IcsCalendarController extends Controller
             }
 
             if ($event->type === 'session' && $event->group) {
-                $descriptionParts[] = 'Gruppo: ' . $event->group->name;
+                $descriptionParts[] = 'Gruppo: '.$event->group->name;
             } else {
                 $typeLabels = [
                     'assembly' => 'Tipologia: Assemblea',
@@ -60,7 +63,7 @@ class IcsCalendarController extends Controller
                 }
             }
 
-            if (!empty($descriptionParts)) {
+            if (! empty($descriptionParts)) {
                 $icsEvent->description(implode("\n\n", $descriptionParts));
             }
 

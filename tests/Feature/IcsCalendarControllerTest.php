@@ -80,4 +80,37 @@ class IcsCalendarControllerTest extends TestCase
         $this->assertStringContainsString('Assemblea Ordinaria dei Soci', $content);
         $this->assertStringNotContainsString('Campagna Beta - Sessione segreta', $content);
     }
+
+    public function test_feed_exports_times_in_rome_timezone_regardless_of_php_default_timezone(): void
+    {
+        $user = User::create([
+            'name' => 'Mario',
+            'email' => 'mario@test.com',
+            'password' => bcrypt('secret123'),
+        ]);
+
+        $assembly = Event::create([
+            'title' => 'Assemblea fuso orario',
+            'start_time' => '2026-10-20 21:00:00',
+            'end_time' => '2026-10-20 23:00:00',
+            'type' => 'assembly',
+            'created_by' => $user->id,
+        ]);
+
+        $previous = date_default_timezone_get();
+        // Simula un'app che legge le date in UTC (il bug: 21:00 esportato come 21:00 UTC => 23:00 su Google)
+        date_default_timezone_set('UTC');
+
+        try {
+            $content = $this->get(route('calendar.ics', ['token' => $user->ics_token]))->getContent();
+        } finally {
+            date_default_timezone_set($previous);
+        }
+
+        // 21:00 a Roma (CEST, UTC+2) = 19:00 UTC; il feed può usare TZID=Europe/Rome oppure UTC
+        $this->assertMatchesRegularExpression(
+            '/DTSTART(;TZID=Europe\/Rome:20261020T210000|:20261020T190000Z)/',
+            $content
+        );
+    }
 }
