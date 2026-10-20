@@ -32,6 +32,7 @@ Note:
 - Il servizio `worker` di produzione esegue anche `schedule:work`: è quello che lancia `app:deactivate-groups` il 15 agosto.
 - Ad ogni avvio l'entrypoint (`docker/entrypoint.sh`) ricopia gli asset compilati dall'immagine (`/opt/build-assets`) in `public/build`, così il mount in dev non serve mai asset vecchi.
 - Le subnet dei due progetti sono diverse (`unlimiteddb` dev usa `172.30.0.0/24`) e così la porta del DB di sviluppo (3307), per poterli avviare insieme.
+- `public/build/` deve esistere sull'host (c'è un `.gitkeep` versionato): in produzione nginx monta `./public` in sola lettura e Docker non può creare lì il mountpoint di `build_assets`; senza la cartella il container nginx non parte (`read-only file system`).
 
 ```bash
 # sviluppo
