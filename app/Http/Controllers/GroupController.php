@@ -105,4 +105,22 @@ class GroupController extends Controller
 
         return redirect()->route('admin.groups.index')->with('success', "Utente {$user->name} rimosso da {$group->name}.");
     }
+    /**
+     * Set or unset a user as session manager for a group.
+     */
+    public function setManager(Request $request, Group $group, User $user): RedirectResponse
+    {
+        Gate::authorize('manage-groups');
+        $validated = $request->validate([
+            'can_manage_sessions' => ['required', 'boolean'],
+        ]);
+        try {
+            $group->setSessionManager($user, $validated['can_manage_sessions']);
+            return back()->with('success', "Permesso aggiornato per {$user->name}.");
+        } catch (DomainException $e) {
+            return back()->withErrors(['can_manage_sessions' => $e->getMessage()]);
+        }
+    }
+
 }
+

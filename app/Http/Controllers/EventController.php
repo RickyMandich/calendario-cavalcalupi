@@ -2,13 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Event;
-use App\Models\Group;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\View\View;
+use App\Services\CalendarScheduler;
+use App\Exceptions\SchedulingException;
+
+// inside store method replace Event::create with scheduler
+        try {
+            $event = $scheduler->createEvent($validated, $user);
+        } catch (SchedulingException $e) {
+            return back()->withErrors([$e->field => $e->getMessage()])->withInput();
+        }
+
+// inside update method replace $event->update with scheduler update
+        try {
+            $event = $scheduler->updateEvent($event, $validated);
+        } catch (SchedulingException $e) {
+            return back()->withErrors([$e->field => $e->getMessage()])->withInput();
+        }
+
 
 class EventController extends Controller
 {
@@ -18,12 +28,13 @@ class EventController extends Controller
     public function create(Request $request): View
     {
         $user = Auth::user();
-        $isStaff = $user->hasRole('ADMIN') || $user->hasRole('CD');
+        $isStaff = $user->isStaff();
 
         if ($isStaff) {
             $groups = Group::active()->orderBy('name')->get();
         } else {
-            $groups = $user->groups()->where('is_active', true)->orderBy('name')->get();
+            $groups = $user->managedGroups()->orderBy('name')->get();
+            $noPermission = $groups->isEmpty();
         }
 
         $defaultType = $request->query('type', $isStaff ? 'session' : 'session');
@@ -32,6 +43,7 @@ class EventController extends Controller
             'groups' => $groups,
             'isStaff' => $isStaff,
             'defaultType' => $defaultType,
+            'noPermission' => $noPermission ?? false,
         ]);
     }
 
@@ -40,8 +52,8 @@ class EventController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $user = Auth::user();
-        $isStaff = $user->hasRole('ADMIN') || $user->hasRole('CD');
+                $user = Auth::user();
+        $isStaff = $user->isStaff();
 
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
@@ -62,21 +74,17 @@ class EventController extends Controller
             if (!$group->is_active) {
                 return back()->withErrors(['group_id' => 'Non è possibile creare sessioni per gruppi non attivi.'])->withInput();
             }
-
-            if (!$isStaff && !$user->groups()->where('groups.id', $group->id)->exists()) {
-                abort(403, 'Non appartieni a questo gruppo di gioco.');
-            }
+            // Authorize session creation for the group
+            Gate::authorize('manage-group-sessions', $group);
         }
 
-        $event = Event::create([
-            'title' => $validated['title'],
-            'description' => $validated['description'] ?? null,
-            'type' => $validated['type'],
-            'start_time' => $validated['start_time'],
-            'end_time' => $validated['end_time'],
-            'group_id' => $validated['group_id'] ?? null,
-            'created_by' => $user->id,
-        ]);
+
+        $scheduler = app(CalendarScheduler::class);
+        try {
+            $event = $scheduler->createEvent($validated, $user);
+        } catch (SchedulingException $e) {
+            return back()->withErrors([$e->field => $e->getMessage()])->withInput();
+        }
 
         return redirect()->route('events.show', $event)->with('success', 'Evento creato con successo!');
     }
@@ -105,8 +113,8 @@ class EventController extends Controller
         }
 
         $user = Auth::user();
-        $isStaff = $user->hasRole('ADMIN') || $user->hasRole('CD');
-        $groups = $isStaff ? Group::active()->orderBy('name')->get() : $user->groups()->where('is_active', true)->orderBy('name')->get();
+        $isStaff = $user->isStaff();
+        $groups = $isStaff ? Group::active()->orderBy('name')->get() : $user->managedGroups()->orderBy('name')->get();
 
         return view('events.edit', [
             'event' => $event,
@@ -127,7 +135,7 @@ class EventController extends Controller
         }
 
         $user = Auth::user();
-        $isStaff = $user->hasRole('ADMIN') || $user->hasRole('CD');
+        $isStaff = $user->isStaff();
 
         $rules = [
             'title' => ['required', 'string', 'max:255'],
@@ -149,7 +157,12 @@ class EventController extends Controller
             }
         }
 
-        $event->update($validated);
+        $scheduler = app(CalendarScheduler::class);
+        try {
+            $event = $scheduler->updateEvent($event, $validated);
+        } catch (SchedulingException $e) {
+            return back()->withErrors([$e->field => $e->getMessage()])->withInput();
+        }
 
         return redirect()->route('events.show', $event)->with('success', 'Evento aggiornato con successo!');
     }
@@ -159,13 +172,7 @@ class EventController extends Controller
      */
     public function destroy(Event $event): RedirectResponse
     {
-        $user = Auth::user();
-        $isStaff = $user->hasRole('ADMIN') || $user->hasRole('CD');
-
-        if (!$isStaff && $event->created_by !== $user->id) {
-            abort(403, 'Non hai i permessi per eliminare questo evento.');
-        }
-
+        Gate::authorize('delete-event', $event);
         $event->delete();
 
         return redirect()->route('calendar.index')->with('success', 'Evento rimosso con successo.');

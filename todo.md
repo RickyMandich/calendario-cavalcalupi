@@ -74,3 +74,45 @@
   - [x] `IcsCalendarController`: gli orari vengono esportati con fuso esplicito `Europe/Rome` (`shiftTimezone`), indipendente dal fuso con cui Carbon li legge.
   - [x] Test `test_feed_exports_times_in_rome_timezone_regardless_of_php_default_timezone`.
   - [ ] Dopo il deploy: verificare su Google Calendar (anche per le sessioni già create) e controllare `config('app.timezone')` sul server.
+
+> Piani di implementazione per le modifiche di `analisi-finale-modifiche.md` (ordine consigliato). Ogni piano, a lavoro finito, va rinominato `implementationPlan-V-*.md`.
+
+- [ ] **Fase 13: Verifica stato attuale** (`implementationPlan-verificaStatoAttuale.md`)
+  - [ ] Baseline test e git pulito; verifiche Docker/icone (fasi 9-10) e post-deploy (fasi 11-12); controllo account demo e `MAIL_*` in produzione.
+
+- [ ] **Fase 14: Sicurezza registrazione e quick-login (P0)** (`implementationPlan-sicurezzaRegistrazioneEQuickLogin.md`)
+  - [x] Separare `RoleSeeder` (solo ruoli) da `DemoSeeder` (solo locale); `DatabaseSeeder` aggiornato.
+  - [ ] Quick-login registrato solo con `APP_ENV=local`; pulsanti demo nascosti altrove.
+  - [ ] Throttle su login/registrazione; `ics_token` fuori da `$fillable`; test di non-regressione.
+  - [ ] Pulizia account demo in produzione (senza perdere eventi: cascade) e README.
+
+- [ ] **Fase 15: Gestione ruoli da interfaccia** (`implementationPlan-gestioneRuoliUtenti.md`)
+  - [ ] `User::isStaff()`, Gate `manage-users`, comando `app:make-admin`.
+  - [ ] Pagina Utenti (ricerca, cambio ruolo, ultimo Admin protetto, log) + link nel layout; test e README.
+
+- [ ] **Fase 16: Permesso gestione sessioni per gruppo** (`implementationPlan-permessoGestioneSessioni.md`)
+  - [ ] Migrazione `group_user.can_manage_sessions`; relazioni e metodi su `User`/`Group`.
+  - [ ] Gate `update-session`, `manage-group-sessions`, `delete-event`; `EventController` aggiornato (niente più eliminazione per `created_by`).
+  - [ ] Interruttore "Responsabile" in `admin/groups`; test, README, `situazione-di-partenza.md`.
+
+- [ ] **Fase 17: Stanze, capienza e regole del calendario** (`implementationPlan-stanzeERegoleCalendario.md`)
+  - [ ] Migrazioni e modelli `rooms`/`room_weekday`; pagina Stanze; `SchedulingException`.
+  - [ ] `CalendarScheduler` (capienza, slot, assemblee per sovrapposizione oraria, lock) e integrazione in `EventController`.
+  - [ ] Endpoint pubblico `/calendar/availability`; suggerimento disponibilità nei form; test e prova di concorrenza su MariaDB.
+
+- [ ] **Fase 18: Spostamento diretto e scambio sessioni** (`implementationPlan-spostamentoDirettoESwap.md`)
+  - [ ] Tabella `session_swap_requests` (una pendente per sessione); servizio di richiesta/abbinamento a specchio/annullamento.
+  - [ ] Scambio atomico con orari invariati, log con `_context`, notifica email `SessionSwapped`; configurazione `MAIL_*`.
+  - [ ] Viste (show, elenco richieste), regola "passato", test e README.
+
+- [ ] **Fase 19: Modalità scura** (`implementationPlan-modalitaScura.md`)
+  - [ ] Rimappatura scale colore sotto `.dark`, variabili semantiche, script anti-lampo e toggle sistema/chiaro/scuro.
+  - [ ] Correzione eccezioni (footer, overlay modali, input date); checklist visiva e contrasto; README.
+
+- [ ] **Fase 20: Calendario visuale (FullCalendar)** (`implementationPlan-calendarioVisuale.md`)
+  - [ ] Dipendenze npm + entry Vite; feed JSON `/calendar/events`; vista elenco `?view=list`.
+  - [ ] Badge capienza/assemblea per giorno, modale di dettaglio, stile adattivo al tema; test e README.
+
+- [ ] **Fase 21: Importazione calendario da Excel/CSV** (`implementationPlan-importazioneCalendarioExcel.md`)
+  - [ ] `phpoffice/phpspreadsheet`, parser e servizio con anteprima + commit tutto-o-niente (stesse regole del form).
+  - [ ] Pagine di import, modello scaricabile, pulizia file temporanei; test e README.

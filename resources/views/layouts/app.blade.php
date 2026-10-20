@@ -68,6 +68,13 @@
                             </a>
                         @endcan
 
+                        @can('manage-users')
+                            <a href="{{ route('admin.users.index') }}"
+                                class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('admin.users.*') ? 'bg-brand-100 text-brand-800 border border-brand-200' : 'text-gray-600 hover:text-brand-800 hover:bg-brand-50' }}">
+                                👤 Utenti
+                            </a>
+                        @endcan
+
                         @role('ADMIN')
                             <a href="/log-viewer" target="_blank"
                                 class="px-3 py-2 text-sm font-medium rounded-lg text-amber-700 hover:text-amber-800 hover:bg-amber-50 border border-amber-200 transition-colors">

@@ -6,6 +6,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\IcsCalendarController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UserController;
 
 Route::get('/', function () {
     return redirect()->route('calendar.index');
@@ -45,4 +46,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/groups/{group}/users', [GroupController::class, 'assignUser'])->name('groups.users.assign');
         Route::delete('/groups/{group}/users/{user}', [GroupController::class, 'removeUser'])->name('groups.users.remove');
     });
-});
+        // Manage users (Admin & CD)
+        Route::prefix('admin')->name('admin.')->middleware('can:manage-users')->group(function () {
+            Route::get('/users', [UserController::class, 'index'])->name('users.index');
+            Route::put('/users/{user}/role', [UserController::class, 'updateRole'])->name('users.role');
+        });
+
+    }); // end auth group

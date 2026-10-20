@@ -145,7 +145,7 @@ php artisan key:generate
 ```
 
 ### 3. Migrazioni & Dati Demo (Seeders)
-Esegui le migrazioni e il popolamento con ruoli, utenti di test e campagne demo:
+Esegui le migrazioni e il popolamento con ruoli e utenti di test (nessun gruppo o sessione di default: i seeder non creano dati di esempio, quindi i test creano da soli i gruppi e gli eventi di cui hanno bisogno):
 ```bash
 php artisan migrate:fresh --seed
 ```

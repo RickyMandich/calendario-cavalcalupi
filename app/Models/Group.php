@@ -38,7 +38,7 @@ class Group extends Model
      */
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class)->withTimestamps();
+        return $this->belongsToMany(User::class)->withPivot('can_manage_sessions')->withTimestamps();
     }
 
     /**
@@ -61,4 +61,28 @@ class Group extends Model
         $userId = $user instanceof User ? $user->id : $user;
         $this->users()->syncWithoutDetaching([$userId]);
     }
+    /**
+     * Users who can manage sessions for this group.
+     */
+    public function managers(): BelongsToMany
+    {
+        return $this->users()->wherePivot('can_manage_sessions', true);
+    }
+
+    /**
+     * Set or unset a user as session manager for this group.
+     */
+    public function setSessionManager(User|int $user, bool $value): void
+    {
+        if (!$this->is_active) {
+            throw new DomainException('Impossibile modificare i responsabili di un gruppo non attivo.');
+        }
+        $userId = $user instanceof User ? $user->id : $user;
+        if (!$this->users()->where('users.id', $userId)->exists()) {
+            throw new DomainException('L\'utente non appartiene al gruppo.');
+        }
+        $this->users()->updateExistingPivot($userId, ['can_manage_sessions' => $value]);
+    }
+
 }
+

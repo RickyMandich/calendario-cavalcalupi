@@ -79,7 +79,7 @@ class User extends Authenticatable
      */
     public function groups(): BelongsToMany
     {
-        return $this->belongsToMany(Group::class)->withTimestamps();
+        return $this->belongsToMany(Group::class)->withPivot('can_manage_sessions')->withTimestamps();
     }
 
     /**
@@ -96,5 +96,37 @@ class User extends Authenticatable
     public function eventLogs(): HasMany
     {
         return $this->hasMany(EventLog::class);
+    }
+    /**
+     * Determine if the user is staff (ADMIN or CD).
+     */
+    /**
+     * Groups where the user can manage sessions (staff or has can_manage_sessions true).
+     */
+    public function managedGroups(): BelongsToMany
+    {
+        return $this->belongsToMany(Group::class)
+            ->wherePivot('can_manage_sessions', true)
+            ->where('groups.is_active', true);
+    }
+
+    /**
+     * Determine if the user can manage sessions of a given group.
+     */
+    public function canManageSessionsOf(Group|int $group): bool
+    {
+        if ($this->isStaff()) {
+            return true;
+        }
+        $groupId = $group instanceof Group ? $group->id : $group;
+        return $this->managedGroups()->where('groups.id', $groupId)->exists();
+    }
+
+    /**
+     * Determine if the user is staff (ADMIN or CD).
+     */
+    public function isStaff(): bool
+    {
+        return $this->hasAnyRole(['ADMIN', 'CD']);
     }
 }

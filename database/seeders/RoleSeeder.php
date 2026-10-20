@@ -22,32 +22,6 @@ class RoleSeeder extends Seeder
         $cdRole = Role::firstOrCreate(['name' => 'CD', 'guard_name' => 'web']);
         $membroRole = Role::firstOrCreate(['name' => 'Membro', 'guard_name' => 'web']);
 
-        // Create default users
-        $admin = User::firstOrCreate(
-            ['email' => 'admin@cavalcalupi.it'],
-            [
-                'name' => 'Amministratore Cavalcalupi',
-                'password' => bcrypt('password'),
-            ]
-        );
-        $admin->syncRoles([$adminRole]);
-
-        $cd = User::firstOrCreate(
-            ['email' => 'cd@cavalcalupi.it'],
-            [
-                'name' => 'Consiglio Direttivo',
-                'password' => bcrypt('password'),
-            ]
-        );
-        $cd->syncRoles([$cdRole]);
-
-        $membro = User::firstOrCreate(
-            ['email' => 'membro@cavalcalupi.it'],
-            [
-                'name' => 'Membro Associazione',
-                'password' => bcrypt('password'),
-            ]
-        );
-        $membro->syncRoles([$membroRole]);
+        // Demo users creation moved to DemoSeeder
     }
 }
