@@ -80,7 +80,7 @@ class CalendarAndWebRoutesTest extends TestCase
     {
         $admin = User::where('email', 'admin@cavalcalupi.it')->first();
         $membro = User::where('email', 'membro@cavalcalupi.it')->first();
-        $inactiveGroup = Group::where('is_active', false)->first();
+        $inactiveGroup = Group::create(['name' => 'Tavolo Vecchio (stagione passata)', 'is_active' => false]);
 
         $response = $this->actingAs($admin)->post(route('admin.groups.users.assign', $inactiveGroup), [
             'user_id' => $membro->id,
@@ -92,7 +92,7 @@ class CalendarAndWebRoutesTest extends TestCase
     public function test_event_creation_and_update_with_logging(): void
     {
         $admin = User::where('email', 'admin@cavalcalupi.it')->first();
-        $activeGroup = Group::where('is_active', true)->first();
+        $activeGroup = Group::create(['name' => 'Tavolo Attivo', 'is_active' => true]);
 
         $startTime = now()->addDays(4)->setTime(21, 00);
         $endTime = now()->addDays(4)->setTime(23, 30);
