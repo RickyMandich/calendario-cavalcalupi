@@ -140,3 +140,11 @@
   - [x] Nginx: asset serviti da `/var/www/build` (fix `read-only file system` in produzione).
   - [ ] Ricostruire/riavviare in dev e produzione (`dok.dev.up`, `git pull` + `docker compose up -d --build` sul server) e verificare `/build/...`, `/favicon.ico`.
   - [ ] Provare con il **file Excel reale** (formato cella sistema/campagna, bande unite).
+
+- [ ] **Fase 23: `.env-overrides` e versionamento (allineato a unlimiteddb)**
+  - [x] Creare `.env-overrides` (tracciato in Git) con `APP_VERSION_TYPE/PRIMARY/SECONDARY/TERTIARY` e `APP_VERSION` (parte da `1.0.0`).
+  - [x] Caricarlo in `bootstrap/app.php` con `Dotenv::createMutable(...)->safeLoad()` prima di `Application::configure(...)`.
+  - [x] Aggiungere `bash/all.sh` (incremento versione) e `bash/cmt.sh` (commit con versione + push).
+  - [x] Documentare nel README (sezione Configurazione Environment).
+  - [ ] Verificare in locale: `php artisan tinker --execute="echo env('APP_VERSION');"` stampa `1.0.0` e `php artisan test` resta verde.
+  - [ ] Verificare `bash/all.sh` (da bash/WSL): la versione sale e il commit riporta `[1.0.1]`; poi, dopo il primo deploy, controllare la versione nel container (`docker compose exec app php artisan tinker --execute="echo env('APP_VERSION');"`).

@@ -144,6 +144,21 @@ Genera la chiave applicativa:
 php artisan key:generate
 ```
 
+#### Variabili non sensibili e versione dell'app (`.env-overrides`)
+Oltre al `.env` (non tracciato, con i segreti) esiste `.env-overrides`, **tracciato in Git**, che contiene solo valori non sensibili: oggi la versione dell'app (`APP_VERSION_TYPE`, `APP_VERSION_PRIMARY`, `APP_VERSION_SECONDARY`, `APP_VERSION_TERTIARY` e `APP_VERSION`, composta dalle precedenti). Stesso sistema di `unlimiteddb`.
+
+- `bootstrap/app.php` lo carica con `Dotenv::createMutable(...)->safeLoad()` **prima** di `Application::configure(...)`: il repository con cui Laravel legge il `.env` è immutabile e non sovrascrive variabili già presenti in `$_ENV`/`$_SERVER`, quindi i valori di `.env-overrides` vincono su eventuali duplicati nel `.env`. `safeLoad()` non dà errore se il file manca.
+- Nel container Docker arriva con il resto del codice (`COPY . .` nel `Dockerfile`; `.dockerignore` esclude solo `.env`), non serve montarlo.
+- Si legge come una qualunque variabile (`env('APP_VERSION')`). Oggi non è mostrata in nessuna vista né in `config/`: se serve, aggiungere `'version' => env('APP_VERSION', 'unknown')` in `config/app.php`.
+- Aggiungere qui solo valori **non sensibili**; i segreti restano nel `.env`.
+
+Versionamento e commit con gli script in `bash/` (da bash/WSL, dalla radice del progetto):
+
+| Script | Cosa fa |
+|---|---|
+| `bash/all.sh` | incrementa la versione in `.env-overrides` e chiama `cmt.sh`. Senza opzioni incrementa la terza cifra (`TERTIARY`); `-p` incrementa la seconda e azzera la terza; `-v` incrementa la prima e azzera le altre; `-n` non fa `git add .`; `-m "msg"` aggiunge un messaggio al commit |
+| `bash/cmt.sh` | `git add .` + commit `aggiornamento <data> [<versione>]` + `git push` (`-n` e `-m` come sopra) |
+
 ### 3. Migrazioni & Dati Demo (Seeders)
 Esegui le migrazioni e il popolamento con ruoli e utenti di test (nessun gruppo o sessione di default: i seeder non creano dati di esempio, quindi i test creano da soli i gruppi e gli eventi di cui hanno bisogno):
 ```bash
