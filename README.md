@@ -149,7 +149,7 @@ Oltre al `.env` (non tracciato, con i segreti) esiste `.env-overrides`, **tracci
 
 - `bootstrap/app.php` lo carica con `Dotenv::createMutable(...)->safeLoad()` **prima** di `Application::configure(...)`: il repository con cui Laravel legge il `.env` è immutabile e non sovrascrive variabili già presenti in `$_ENV`/`$_SERVER`, quindi i valori di `.env-overrides` vincono su eventuali duplicati nel `.env`. `safeLoad()` non dà errore se il file manca.
 - Nel container Docker arriva con il resto del codice (`COPY . .` nel `Dockerfile`; `.dockerignore` esclude solo `.env`), non serve montarlo.
-- Si legge come una qualunque variabile (`env('APP_VERSION')`). Oggi non è mostrata in nessuna vista né in `config/`: se serve, aggiungere `'version' => env('APP_VERSION', 'unknown')` in `config/app.php`.
+- Si legge con `config('app.version')` (definita in `config/app.php` come `env('APP_VERSION', 'unknown')`; nelle viste e nel codice usare la config, non `env()`, che con la config in cache restituirebbe `null`). La versione è mostrata nel footer (`layouts/app.blade.php`).
 - Aggiungere qui solo valori **non sensibili**; i segreti restano nel `.env`.
 
 Versionamento e commit con gli script in `bash/` (da bash/WSL, dalla radice del progetto):

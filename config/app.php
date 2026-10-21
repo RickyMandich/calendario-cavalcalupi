@@ -15,6 +15,9 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+    // Versione dell'app, definita in .env-overrides (gestita da bash/all.sh).
+    'version' => env('APP_VERSION', 'unknown'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

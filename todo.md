@@ -146,5 +146,6 @@
   - [x] Caricarlo in `bootstrap/app.php` con `Dotenv::createMutable(...)->safeLoad()` prima di `Application::configure(...)`.
   - [x] Aggiungere `bash/all.sh` (incremento versione) e `bash/cmt.sh` (commit con versione + push).
   - [x] Documentare nel README (sezione Configurazione Environment).
-  - [ ] Verificare in locale: `php artisan tinker --execute="echo env('APP_VERSION');"` stampa `1.0.0` e `php artisan test` resta verde.
-  - [ ] Verificare `bash/all.sh` (da bash/WSL): la versione sale e il commit riporta `[1.0.1]`; poi, dopo il primo deploy, controllare la versione nel container (`docker compose exec app php artisan tinker --execute="echo env('APP_VERSION');"`).
+  - [x] Verificato in locale: `env('APP_VERSION')` e `bash/all.sh` funzionano.
+  - [x] Esporre la versione in `config('app.version')` (`config/app.php`) e mostrarla nel footer di `layouts/app.blade.php`.
+  - [ ] Dopo il primo deploy: controllare la versione nel footer in produzione.

@@ -195,7 +195,7 @@
 
     <!-- Footer -->
     <footer class="site-footer py-6 text-center text-xs">
-        <p>Associazione Cavalcalupi &bull; Sistema Calendario & Feed ICS &bull; {{ date('Y') }}</p>
+        <p>Associazione Cavalcalupi &bull; Sistema Calendario & Feed ICS &bull; {{ date('Y') }} &bull; Versione {{ config('app.version') }}</p>
     </footer>
 
     <!-- Bladewind UI Scripts -->
