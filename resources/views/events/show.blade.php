@@ -59,7 +59,7 @@
                         </a>
                     @endif
 
-                    @if(Auth::user()->hasRole('ADMIN') || Auth::user()->hasRole('CD') || $event->created_by === Auth::id())
+                    @can('delete-event', $event)
                         <form method="POST" action="{{ route('events.destroy', $event) }}" onsubmit="return confirm('Confermi l\'eliminazione definitiva di questo evento?')">
                             @csrf
                             @method('DELETE')
@@ -68,7 +68,7 @@
                                 🗑️ Elimina
                             </button>
                         </form>
-                    @endif
+                    @endcan
                 </div>
             @endauth
         </div>
@@ -101,6 +101,42 @@
                 </span>
             </div>
         </div>
+
+        @if($event->swapRequests->isNotEmpty())
+            <div class="mt-6 p-3.5 rounded-xl bg-sky-50 border border-sky-200 text-xs text-sky-800">
+                🔁 Scambio richiesto per il {{ $event->swapRequests->first()->target_date->format('d/m/Y') }}
+            </div>
+        @endif
+
+        @auth
+            @if($event->type === 'session' && $event->start_time->isFuture() && Auth::user()->can('update-session', $event))
+                <div class="mt-6 p-4 rounded-2xl bg-brand-50 border border-brand-100 space-y-3">
+                    <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-500">Spostamento</h3>
+                    <p class="text-xs text-gray-600">
+                        Se il giorno desiderato ha posto, usa <a class="text-brand-700 underline" href="{{ route('events.edit', $event) }}">lo spostamento diretto</a>.
+                        Se è pieno, accordatevi con l'altro gruppo e inviate ciascuno una richiesta di scambio: quando combaciano i giorni si scambiano (gli orari restano invariati).
+                    </p>
+                    @if($event->swapRequests->isNotEmpty())
+                        @foreach($event->swapRequests as $sr)
+                            <form method="POST" action="{{ route('swap-requests.destroy', $sr) }}">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn-secondary">Annulla richiesta di scambio</button>
+                            </form>
+                        @endforeach
+                    @else
+                        <form method="POST" action="{{ route('swap-requests.store', $event) }}" class="flex flex-wrap items-end gap-2">
+                            @csrf
+                            <div>
+                                <label for="target_date" class="field-label">Giorno desiderato</label>
+                                <input type="date" id="target_date" name="target_date" required class="field">
+                            </div>
+                            <button type="submit" class="btn-primary">Richiedi scambio</button>
+                        </form>
+                    @endif
+                </div>
+            @endif
+        @endauth
 
         <!-- Description -->
         <div class="py-6">
@@ -172,7 +208,10 @@
                                     @else
                                         <div class="space-y-1">
                                             @if(!empty($log->new_data))
-                                                @foreach($log->new_data as $field => $newVal)
+                                                @if(!empty($log->new_data['_context']['swap_with_title']))
+                                                    <div class="text-[11px] text-sky-700">🔁 Scambio con «{{ $log->new_data['_context']['swap_with_title'] }}» ({{ $log->new_data['_context']['swap_with_group'] ?? '-' }})</div>
+                                                @endif
+                                                @foreach(collect($log->new_data)->except('_context') as $field => $newVal)
                                                     @php
                                                         $oldVal = $log->old_data[$field] ?? '-';
                                                     @endphp

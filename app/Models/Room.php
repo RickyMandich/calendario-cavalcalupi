@@ -2,28 +2,33 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 class Room extends Model
 {
     protected $fillable = ['name', 'capacity', 'is_active'];
 
-    protected $casts = [
-        'is_active' => 'boolean',
-        'capacity' => 'integer',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+            'capacity' => 'integer',
+        ];
+    }
 
     /**
-     * Scope a query to only include active rooms.
+     * Solo le stanze attive.
      */
-    public function scopeActive($query)
+    public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }
 
     /**
-     * Get the weekdays associated with the room.
+     * Giorni della settimana in cui la stanza è utilizzabile.
      */
     public function weekdays(): HasMany
     {
@@ -31,24 +36,27 @@ class Room extends Model
     }
 
     /**
-     * Scope to rooms usable on a given ISO weekday (1 = Monday ... 7 = Sunday).
+     * Stanze utilizzabili in un dato giorno ISO (1 = lunedì ... 7 = domenica).
      */
-    public function scopeUsableOn($query, int $isoWeekday)
+    public function scopeUsableOn(Builder $query, int $isoWeekday): Builder
     {
-        return $query->whereHas('weekdays', fn($q) => $q->where('weekday', $isoWeekday));
+        return $query->whereHas('weekdays', fn ($q) => $q->where('weekday', $isoWeekday));
     }
 
     /**
-     * Sync the weekdays for the room.
+     * Sostituisce i giorni utilizzabili (accetta solo interi 1-7, senza duplicati).
      *
-     * @param array $days Array of integers 1-7 representing weekdays.
+     * @param  array<int|string>  $days
      */
     public function syncWeekdays(array $days): void
     {
-        // Ensure unique, valid values
-        $days = array_unique(array_filter($days, fn($d) => $d >= 1 && $d <= 7));
-        // Use a transaction to replace existing rows
-        \DB::transaction(function () use ($days) {
+        $days = collect($days)
+            ->map(fn ($d) => (int) $d)
+            ->filter(fn ($d) => $d >= 1 && $d <= 7)
+            ->unique()
+            ->values();
+
+        DB::transaction(function () use ($days) {
             $this->weekdays()->delete();
             foreach ($days as $day) {
                 $this->weekdays()->create(['weekday' => $day]);
@@ -56,4 +64,3 @@ class Room extends Model
         });
     }
 }
-?>

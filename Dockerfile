@@ -15,6 +15,9 @@ RUN npm run build
 # composer.lock del progetto). Composer viene copiato come binario.
 FROM php:8.2-fpm-alpine AS composer-builder
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+# phpoffice/phpspreadsheet (import calendario) richiede ext-gd ed ext-zip anche in fase di install
+RUN apk add --no-cache libpng-dev libzip-dev \
+    && docker-php-ext-install gd zip
 WORKDIR /app
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist

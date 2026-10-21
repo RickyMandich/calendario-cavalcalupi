@@ -27,11 +27,13 @@
                         <span>Feed ICS Personale</span>
                     </button>
 
-                    <!-- Create Event Button -->
-                    <a href="{{ route('events.create') }}" class="btn-primary">
-                        <span>➕</span>
-                        <span>Nuova Sessione / Evento</span>
-                    </a>
+                    <!-- Create Event Button (solo chi può gestire sessioni) -->
+                    @if($canCreateSessions)
+                        <a href="{{ route('events.create') }}" class="btn-primary">
+                            <span>➕</span>
+                            <span>Nuova Sessione / Evento</span>
+                        </a>
+                    @endif
                 @else
                     <a href="{{ route('login') }}" class="btn-primary">
                         <span>🔑 Accedi per Sincronizzare ICS</span>
@@ -46,12 +48,12 @@
         <div class="flex items-center gap-2">
             <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Filtra Eventi:</span>
             <div class="inline-flex rounded-xl p-1 bg-brand-50 border border-brand-100">
-                <a href="{{ route('calendar.index', ['filter' => 'all']) }}"
+                <a href="{{ route('calendar.index', ['filter' => 'all', 'view' => $view === 'list' ? 'list' : null]) }}"
                    class="px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all {{ $filter === 'all' ? 'bg-brand-600 text-white shadow' : 'text-gray-600 hover:text-brand-800' }}">
-                    🌐 Tutti gli Eventi ({{ $events->count() }})
+                    🌐 Tutti gli Eventi{{ $view === 'list' ? ' ('.$events->count().')' : '' }}
                 </a>
                 @auth
-                    <a href="{{ route('calendar.index', ['filter' => 'my-groups']) }}"
+                    <a href="{{ route('calendar.index', ['filter' => 'my-groups', 'view' => $view === 'list' ? 'list' : null]) }}"
                        class="px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all {{ $filter === 'my-groups' ? 'bg-brand-600 text-white shadow' : 'text-gray-600 hover:text-brand-800' }}">
                         🛡️ Solo i Miei Gruppi & Istituzionali
                     </a>
@@ -72,8 +74,22 @@
         </div>
     </div>
 
-    <!-- Events List -->
-    @if($events->isEmpty())
+    <!-- Selettore vista -->
+    <div class="flex items-center gap-2">
+        <a href="{{ route('calendar.index', ['filter' => $filter]) }}"
+           class="{{ $view === 'calendar' ? 'btn-primary' : 'btn-secondary' }}">📅 Calendario</a>
+        <a href="{{ route('calendar.index', ['filter' => $filter, 'view' => 'list']) }}"
+           class="{{ $view === 'list' ? 'btn-primary' : 'btn-secondary' }}">📃 Elenco</a>
+    </div>
+
+    @if($view === 'calendar')
+        <div class="panel p-3 sm:p-5 rounded-3xl">
+            <div id="calendar"
+                 data-events-url="{{ route('calendar.events') }}"
+                 data-availability-url="{{ route('calendar.availability') }}"
+                 data-filter="{{ $filter }}"></div>
+        </div>
+    @elseif($events->isEmpty())
         <div class="text-center py-16 panel rounded-3xl">
             <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-brand-50 flex items-center justify-center text-3xl">
                 🐺
@@ -112,6 +128,7 @@
                             @endif
 
                             <span class="text-xs font-mono text-gray-500">
+                                @if($event->swapRequests->isNotEmpty()) <span title="Scambio richiesto">🔁</span> @endif
                                 {{ $event->start_time->format('d/m/Y') }}
                             </span>
                         </div>
@@ -182,9 +199,27 @@
     @endif
 </div>
 
+<!-- Modale di dettaglio evento (calendario) -->
+@if($view === 'calendar')
+<div id="eventModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay backdrop-blur-sm hidden">
+    <div class="panel max-w-lg w-full p-6 sm:p-8 rounded-3xl shadow-2xl relative">
+        <button type="button" id="eventModalClose" class="absolute top-5 right-5 text-gray-400 hover:text-brand-800 text-xl" aria-label="Chiudi">&times;</button>
+        <div id="eventModalBadge" class="text-xs font-semibold text-brand-700 mb-1"></div>
+        <h3 id="eventModalTitle" class="text-xl font-bold text-brand-950 mb-2"></h3>
+        <div id="eventModalWhen" class="text-sm text-gray-700 mb-1"></div>
+        <div id="eventModalGroup" class="text-xs text-brand-700 mb-2"></div>
+        <p id="eventModalDesc" class="text-xs text-gray-600 whitespace-pre-line mb-4"></p>
+        <div class="flex justify-end gap-2">
+            <a id="eventModalEdit" href="#" class="btn-secondary hidden">✏️ Modifica</a>
+            <a id="eventModalDetails" href="#" class="btn-primary hidden">Dettagli e storico</a>
+        </div>
+    </div>
+</div>
+@endif
+
 <!-- ICS Link Modal -->
 @auth
-<div id="icsModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-950/50 backdrop-blur-sm hidden">
+<div id="icsModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay backdrop-blur-sm hidden">
     <div class="panel max-w-lg w-full p-6 sm:p-8 rounded-3xl border border-brand-200 shadow-2xl relative">
         <button type="button" onclick="closeIcsModal()" class="absolute top-5 right-5 text-gray-400 hover:text-brand-800 text-xl">
             &times;
@@ -238,6 +273,9 @@
 @endauth
 
 @push('scripts')
+@if($view === 'calendar')
+    @vite('resources/js/calendar.js')
+@endif
 <script>
     function openIcsModal() {
         const modal = document.getElementById('icsModal');

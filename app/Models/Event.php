@@ -15,6 +15,12 @@ class Event extends Model
 {
     use HasFactory;
 
+    /**
+     * Contesto extra scritto nel log della prossima modifica (es. scambio). Proprietà reale,
+     * non è un attributo e non viene salvata.
+     */
+    public ?array $logContext = null;
+
     protected $fillable = [
         'title',
         'description',
@@ -35,13 +41,15 @@ class Event extends Model
 
     protected static function booted(): void
     {
+        // NB: qui NON si applicano capienza/assemblee: stanno in App\Services\CalendarScheduler,
+        // così seeder, test e tinker non vengono bloccati. Solo coerenza type/group_id.
         static::saving(function (Event $event) {
             if ($event->type === 'session') {
-                if (!$event->group_id) {
+                if (! $event->group_id) {
                     throw new InvalidArgumentException('Una sessione deve essere associata a un gruppo.');
                 }
                 $group = Group::find($event->group_id);
-                if (!$group || !$group->is_active) {
+                if (! $group || ! $group->is_active) {
                     throw new InvalidArgumentException('La sessione può essere associata solo a un gruppo attivo.');
                 }
             } else {
@@ -50,27 +58,23 @@ class Event extends Model
         });
     }
 
-    /**
-     * Group associated with this event (if session).
-     */
     public function group(): BelongsTo
     {
         return $this->belongsTo(Group::class);
     }
 
-    /**
-     * User who created this event.
-     */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    /**
-     * Change logs for this event.
-     */
     public function logs(): HasMany
     {
         return $this->hasMany(EventLog::class)->latest();
+    }
+
+    public function swapRequests(): HasMany
+    {
+        return $this->hasMany(SessionSwapRequest::class)->where('status', 'pending');
     }
 }

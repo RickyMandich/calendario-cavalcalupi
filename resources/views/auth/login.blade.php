@@ -38,7 +38,8 @@
             </button>
         </form>
 
-        <!-- Quick Demo Logins -->
+        @if(app()->environment('local'))
+        <!-- Quick Demo Logins (solo ambiente locale) -->
         <div class="mt-8 pt-6 border-t border-brand-100 text-center">
             <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">Accesso Rapido Demo</p>
             <div class="grid grid-cols-3 gap-2">
@@ -57,6 +58,7 @@
             </div>
             <p class="text-[11px] text-gray-500 mt-2">Password predefinita di tutti gli account demo: <code class="text-brand-800">password</code></p>
         </div>
+        @endif
     </div>
 </div>
 @endsection

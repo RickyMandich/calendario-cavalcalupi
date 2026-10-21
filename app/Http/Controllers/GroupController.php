@@ -115,7 +115,7 @@ class GroupController extends Controller
             'can_manage_sessions' => ['required', 'boolean'],
         ]);
         try {
-            $group->setSessionManager($user, $validated['can_manage_sessions']);
+            $group->setSessionManager($user, $request->boolean('can_manage_sessions'));
             return back()->with('success', "Permesso aggiornato per {$user->name}.");
         } catch (DomainException $e) {
             return back()->withErrors(['can_manage_sessions' => $e->getMessage()]);

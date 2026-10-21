@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Event;
+use App\Models\Group;
 use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -27,47 +28,40 @@ class AppServiceProvider extends ServiceProvider
             return $user !== null && $user->hasRole('ADMIN');
         });
 
-        // Manage groups gate - staff (ADMIN or CD)
+        // Gate riservati allo staff (ADMIN o CD, stessi poteri)
         Gate::define('manage-groups', fn (User $user) => $user->isStaff());
-
-        // Manage assemblies gate - staff
         Gate::define('manage-assemblies', fn (User $user) => $user->isStaff());
-
-        // Manage users gate - staff
         Gate::define('manage-users', fn (User $user) => $user->isStaff());
-        // Manage rooms gate - staff
         Gate::define('manage-rooms', fn (User $user) => $user->isStaff());
-        // Manage group sessions gate
-        Gate::define('manage-group-sessions', function (User $user, \App\Models\Group $group) {
-            return $user->canManageSessionsOf($group);
-        });
+        Gate::define('import-calendar', fn (User $user) => $user->isStaff());
 
-        // Manage users gate - staff
-        Gate::define('manage-users', fn (User $user) => $user->isStaff());
+        // Permesso "gestione sessioni" per gruppo (staff sempre; altri solo se assegnato in quel gruppo)
+        Gate::define('manage-group-sessions', fn (User $user, Group $group) => $user->canManageSessionsOf($group));
 
-        // Update session gate: ADMIN, CD, or users with session management permission
+        // Modifica/spostamento di una sessione
         Gate::define('update-session', function (User $user, Event $event) {
             if ($user->isStaff()) {
                 return true;
             }
 
-            if ($event->type !== 'session' || !$event->group_id) {
+            if ($event->type !== 'session' || ! $event->group_id) {
                 return false;
             }
 
-            // Use the new permission check
-            return $user->canManageSessionsOf($event->group);
+            return $user->canManageSessionsOf($event->group_id);
         });
 
-        // Delete event gate: staff or session manager for the group
+        // Eliminazione evento: staff, oppure chi gestisce le sessioni del gruppo
         Gate::define('delete-event', function (User $user, Event $event) {
             if ($user->isStaff()) {
                 return true;
             }
-            if ($event->type !== 'session' || !$event->group_id) {
+
+            if ($event->type !== 'session' || ! $event->group_id) {
                 return false;
             }
-            return $user->canManageSessionsOf($event->group);
+
+            return $user->canManageSessionsOf($event->group_id);
         });
     }
 }

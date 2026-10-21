@@ -6,6 +6,9 @@
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
+/* Modalità scura: classe `dark` su <html> (impostata da resources/js/theme.js e dallo script anti-lampo). */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
@@ -24,10 +27,93 @@
     --color-brand-950: #052e16;
 }
 
+/* Variabili semantiche per ciò che non è una scala di colori. */
+:root {
+    color-scheme: light;
+    --surface: #ffffff;
+    --surface-raised: #ffffff;
+    --footer-bg: #166534;
+    --footer-fg: #dcfce7;
+    --overlay: rgb(5 46 22 / 0.5);
+}
+
+/*
+ * TEMA SCURO: specchio delle scale di colore (50<->950, 100<->900, ...), così le viste esistenti
+ * si invertono da sole (sfondi verde scuro, testi chiari). Per ritoccare i colori scuri basta modificare questo blocco.
+ */
+.dark {
+    color-scheme: dark;
+    --surface: #052e16;
+    --surface-raised: #0a3b1f;
+    --footer-bg: #031c0d;
+    --footer-fg: #86efac;
+    --overlay: rgb(0 0 0 / 0.6);
+
+    --color-white: var(--surface);
+
+    --color-brand-50: #052e16;
+    --color-brand-100: #14532d;
+    --color-brand-200: #166534;
+    --color-brand-300: #15803d;
+    --color-brand-400: #16a34a;
+    --color-brand-500: #22c55e;
+    --color-brand-600: #4ade80;
+    --color-brand-700: #86efac;
+    --color-brand-800: #bbf7d0;
+    --color-brand-900: #dcfce7;
+    --color-brand-950: #f0fdf4;
+
+    --color-gray-50: #030712;
+    --color-gray-100: #111827;
+    --color-gray-200: #1f2937;
+    --color-gray-300: #374151;
+    --color-gray-400: #4b5563;
+    --color-gray-500: #6b7280;
+    --color-gray-600: #9ca3af;
+    --color-gray-700: #d1d5db;
+    --color-gray-800: #e5e7eb;
+    --color-gray-900: #f3f4f6;
+    --color-gray-950: #f9fafb;
+
+    --color-rose-50: #4c0519;
+    --color-rose-100: #881337;
+    --color-rose-200: #9f1239;
+    --color-rose-600: #fb7185;
+    --color-rose-700: #fda4af;
+    --color-rose-800: #fecdd3;
+
+    --color-amber-50: #451a03;
+    --color-amber-100: #78350f;
+    --color-amber-200: #92400e;
+    --color-amber-600: #fbbf24;
+    --color-amber-700: #fcd34d;
+    --color-amber-800: #fde68a;
+
+    --color-sky-50: #082f49;
+    --color-sky-100: #0c4a6e;
+    --color-sky-200: #075985;
+    --color-sky-600: #38bdf8;
+    --color-sky-700: #7dd3fc;
+    --color-sky-800: #bae6fd;
+
+    --color-red-50: #450a0a;
+    --color-red-100: #7f1d1d;
+    --color-red-200: #991b1b;
+    --color-red-600: #f87171;
+    --color-red-700: #fca5a5;
+    --color-red-800: #fecaca;
+}
+
 /* Componenti riusati nelle viste, così la palette resta definita in un solo punto. */
 @layer components {
     .panel {
-        @apply bg-white border border-brand-100 shadow-sm;
+        @apply rounded-2xl border border-brand-200 shadow-sm;
+        background-color: var(--surface-raised);
+    }
+
+    /* Etichetta arrotondata con bordino (ruoli, stati) */
+    .badge {
+        @apply inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold;
     }
 
     .field-label {
@@ -48,4 +134,102 @@
         @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-brand-50 text-brand-800
             border border-brand-200 text-xs font-semibold transition-all;
     }
+
+    .site-footer {
+        background-color: var(--footer-bg);
+        color: var(--footer-fg);
+    }
+
+    .modal-overlay {
+        background-color: var(--overlay);
+    }
+}
+
+/* In scuro il testo dei pulsanti pieni (verde chiaro) deve essere scuro per restare leggibile. */
+.dark .btn-primary {
+    color: #052e16;
+}
+
+/* ---------- FullCalendar (segue i token del sito, quindi anche il tema scuro) ---------- */
+html .fc {
+    --fc-border-color: var(--color-brand-100);
+    --fc-page-bg-color: var(--surface);
+    --fc-neutral-bg-color: var(--color-brand-50);
+    --fc-today-bg-color: color-mix(in oklab, var(--color-brand-100) 60%, transparent);
+    --fc-button-bg-color: var(--color-brand-600);
+    --fc-button-border-color: var(--color-brand-600);
+    --fc-button-text-color: #ffffff;
+    --fc-button-hover-bg-color: var(--color-brand-700);
+    --fc-button-hover-border-color: var(--color-brand-700);
+    --fc-button-active-bg-color: var(--color-brand-800);
+    --fc-button-active-border-color: var(--color-brand-800);
+    --fc-list-event-hover-bg-color: var(--color-brand-50);
+    color: var(--color-gray-900);
+    font-size: 0.85rem;
+}
+
+.dark .fc {
+    --fc-button-text-color: #052e16;
+}
+
+.fc a {
+    color: inherit;
+}
+
+.fc-evt-session {
+    background: var(--color-brand-600);
+    border-color: var(--color-brand-700);
+    color: #fff;
+}
+
+.fc-evt-assembly {
+    background: var(--color-rose-600);
+    border-color: var(--color-rose-700);
+    color: #fff;
+}
+
+.fc-evt-association {
+    background: var(--color-amber-600);
+    border-color: var(--color-amber-700);
+    color: #fff;
+}
+
+.dark .fc-evt-session,
+.dark .fc-evt-assembly,
+.dark .fc-evt-association {
+    color: #052e16;
+}
+
+.fc-event {
+    cursor: pointer;
+}
+
+.fc-day-capacity {
+    position: absolute;
+    top: 2px;
+    left: 4px;
+    z-index: 3;
+    padding: 0 6px;
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: 9999px;
+    background: var(--color-brand-100);
+    color: var(--color-brand-800);
+    border: 1px solid var(--color-brand-200);
+}
+
+.fc-day-capacity.is-full {
+    background: var(--color-rose-100);
+    color: var(--color-rose-800);
+    border-color: var(--color-rose-200);
+}
+
+.fc-day-capacity.is-over {
+    background: var(--color-red-100);
+    color: var(--color-red-800);
+    border: 2px solid var(--color-red-600);
+}
+
+.fc .has-assembly {
+    box-shadow: inset 0 0 0 2px var(--color-rose-600);
 }

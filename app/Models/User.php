@@ -15,7 +15,7 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, HasRoles, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -26,7 +26,6 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'ics_token',
     ];
 
     /**
@@ -97,6 +96,7 @@ class User extends Authenticatable
     {
         return $this->hasMany(EventLog::class);
     }
+
     /**
      * Determine if the user is staff (ADMIN or CD).
      */
@@ -119,6 +119,7 @@ class User extends Authenticatable
             return true;
         }
         $groupId = $group instanceof Group ? $group->id : $group;
+
         return $this->managedGroups()->where('groups.id', $groupId)->exists();
     }
 

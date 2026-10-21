@@ -64,6 +64,8 @@
                 </div>
             </div>
 
+            <div id="availabilityBox" data-url="{{ route('calendar.availability') }}" class="text-xs p-3 rounded-xl bg-brand-50 border border-brand-100 text-gray-600 hidden"></div>
+
             <!-- Descrizione -->
             <div>
                 <label for="description" class="field-label">Descrizione</label>
@@ -82,4 +84,8 @@
         </form>
     </div>
 </div>
+
+@push('scripts')
+    @include('events._availability')
+@endpush
 @endsection

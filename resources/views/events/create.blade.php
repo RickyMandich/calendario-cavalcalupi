@@ -17,6 +17,13 @@
             <p class="text-xs text-gray-500 mt-1">Crea una nuova sessione di gioco, un'assemblea o un evento associativo</p>
         </div>
 
+        @if($noRooms)
+            <div class="mb-5 text-xs text-amber-700 p-3 rounded-xl bg-amber-50 border border-amber-200">
+                ⚠️ Nessuna stanza configurata: le sessioni non possono essere programmate.
+                <a href="{{ route('admin.rooms.index') }}" class="underline font-semibold">Configura le stanze</a>
+            </div>
+        @endif
+
         <form method="POST" action="{{ route('events.store') }}" class="space-y-5">
             @csrf
 
@@ -43,9 +50,13 @@
             <!-- Selezione Gruppo (condizionale su type == 'session') -->
             <div id="groupContainer">
                 <label for="group_id" class="field-label">Tavolo / Gruppo di Gioco (solo Gruppi Attivi)</label>
-                @if($groups->isEmpty())
+                @if($noPermission)
                     <p class="text-xs text-amber-700 p-3 rounded-xl bg-amber-50 border border-amber-200">
-                        ⚠️ Non risulti membro di alcun gruppo attivo. Chiedi a un responsabile CD o Admin di assegnarti al tuo tavolo.
+                        ⚠️ Non hai il permesso di gestire sessioni in nessun gruppo: chiedi a un CD o Admin.
+                    </p>
+                @elseif($groups->isEmpty())
+                    <p class="text-xs text-amber-700 p-3 rounded-xl bg-amber-50 border border-amber-200">
+                        ⚠️ Non ci sono gruppi attivi.
                     </p>
                 @else
                     <select id="group_id" name="group_id" class="field">
@@ -76,6 +87,8 @@
                 </div>
             </div>
 
+            <div id="availabilityBox" data-url="{{ route('calendar.availability') }}" class="text-xs p-3 rounded-xl bg-brand-50 border border-brand-100 text-gray-600 hidden"></div>
+
             <!-- Descrizione -->
             <div>
                 <label for="description" class="field-label">Descrizione / Note (opzionale)</label>
@@ -89,7 +102,7 @@
                 <a href="{{ route('calendar.index') }}" class="btn-secondary">
                     Annulla
                 </a>
-                <button type="submit" class="btn-primary px-5">
+                <button type="submit" class="btn-primary px-5" @if($noPermission) disabled @endif>
                     Salva e Notifica Calendario
                 </button>
             </div>
@@ -115,5 +128,6 @@
         if (typeSelect) toggleGroupSelection(typeSelect.value);
     });
 </script>
+@include('events._availability')
 @endpush
 @endsection

@@ -4,14 +4,17 @@ namespace App\Exceptions;
 
 use DomainException;
 
+/**
+ * Violazione di una regola del calendario (capienza, assemblee, passato...).
+ * I controller la convertono in un errore di validazione sul campo indicato.
+ */
 class SchedulingException extends DomainException
 {
-    public readonly string $field;
-
-    public function __construct(string $message, string $field = 'start_time')
-    {
+    public function __construct(
+        string $message,
+        public readonly string $field = 'start_time',
+        public readonly string $reason = '',
+    ) {
         parent::__construct($message);
-        $this->field = $field;
     }
 }
-?>

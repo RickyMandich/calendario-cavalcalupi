@@ -193,6 +193,28 @@ Test inclusi:
 - `Tests\Feature\IcsCalendarControllerTest`: Download, sicurezza token e filtraggio eventi feed `.ics`.
 - `Tests\Feature\DeactivateGroupsCommandTest`: Verifica disattivazione corretta gruppi pre-15 agosto.
 - `Tests\Feature\CalendarAndWebRoutesTest`: Flusso completo web, creazione, riprogrammazione e visualizzazione storico.
+- `RegistrationSecurityTest`, `MakeAdminCommandTest`, `UserRolesTest`: registrazione sicura, comando `app:make-admin`, gestione ruoli.
+- `SessionManagementPermissionTest`: permesso "gestione sessioni" per gruppo.
+- `SchedulerRulesTest`, `RoomsAndAvailabilityTest`: stanze, capienza, assemblee, disponibilità.
+- `SessionSwapTest`: scambio sessioni tra gruppi.
+- `CalendarEventsFeedTest`, `ThemeToggleTest`: feed FullCalendar e tema scuro.
+- `CalendarImportTest`: import Excel/CSV (richiede `phpoffice/phpspreadsheet`).
+
+Nota: con Docker i comandi artisan vanno eseguiti nel container (`docker compose -f docker-compose.dev.yml exec app php artisan ...`); i test usano SQLite in memoria e girano anche in locale.
+
+---
+
+## 🧩 Funzionalità aggiunte (fasi 14-21)
+
+- **Registrazione e quick-login**: la registrazione pubblica crea solo `Membro` senza gruppi; il quick-login esiste solo con `APP_ENV=local`; login/registrazione hanno throttle. `DemoSeeder` (utenti, gruppo e stanze demo) gira solo in locale; in produzione usare `php artisan db:seed --class=RoleSeeder --force` e `php artisan app:make-admin <email>` per il primo Admin.
+- **Ruoli** (`/admin/users`): Admin e CD hanno gli stessi poteri (`User::isStaff()`); l'Admin ha in più il Log Viewer. L'ultimo Admin non può essere declassato.
+- **Permesso gestione sessioni**: colonna `group_user.can_manage_sessions`, assegnata da CD/Admin in `/admin/groups`. Gate `update-session`, `manage-group-sessions`, `delete-event`.
+- **Stanze e capienza** (`/admin/rooms`): tabelle `rooms` e `room_weekday`. I posti di un giorno = somma delle capienze delle stanze attive utilizzabili quel giorno. Le regole stanno in `App\Services\CalendarScheduler` (non nel modello `Event`): sessione = 1 posto, giorno pieno bloccato, assemblea blocca per sovrapposizione oraria, eventi associativi non occupano posti. Endpoint pubblico `GET /calendar/availability`.
+- **Scambio sessioni** (`App\Services\SessionSwapService`, tabella `session_swap_requests`): ogni gruppo invia una richiesta dalla pagina della sessione; quando le due richieste combaciano a specchio i giorni si scambiano (orari e durate invariati), con log `_context` e email `SessionSwapped` ai due richiedenti. Una richiesta pendente per sessione (`pending_flag` + unique). Le richieste si annullano se cambia il giorno della sessione. Elenco in `/swap-requests`.
+- **Modalità scura**: classe `dark` su `<html>`; le scale `brand`, `gray`, ecc. sono rimappate in `resources/css/app.css`; toggle sistema/chiaro/scuro in `resources/js/theme.js` con script anti-lampo nel layout.
+- **Calendario visuale**: FullCalendar (`resources/js/calendar.js`, entry Vite separata), feed JSON pubblico `GET /calendar/events?start&end&filter`, badge capienza/assemblea per giorno; `/calendar?view=list` mostra l'elenco a card.
+- **Import calendario** (`/admin/import/calendar`): Excel/CSV (max 500 righe, 2 MB), anteprima con errori per riga, conferma tutto-o-niente con rivalidazione, modello `.xlsx` scaricabile. Codice in `App\Services\CalendarImport\*`. Richiede `phpoffice/phpspreadsheet` (che richiede `ext-gd` e `ext-zip`: il `Dockerfile` li installa anche nello stage composer; in locale senza gd usare `composer require phpoffice/phpspreadsheet --ignore-platform-req=ext-gd`). I file temporanei in `storage/app/private/imports` vengono eliminati dopo 24 ore dallo scheduler.
+- **Fuso orario**: `APP_TIMEZONE=Europe/Rome` (anche in `phpunit.xml`).
 
 ---
 

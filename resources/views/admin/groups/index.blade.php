@@ -61,6 +61,15 @@
                         Creato il {{ $group->created_at->format('d/m/Y') }}
                     </p>
 
+                    @php $managersCount = $group->users->filter(fn ($u) => $u->pivot->can_manage_sessions)->count(); @endphp
+                    <p class="text-xs mb-3 {{ $managersCount ? 'text-brand-700' : 'text-amber-700' }}">
+                        @if($managersCount)
+                            ⭐ Responsabili: {{ $managersCount }}
+                        @else
+                            Nessun responsabile: solo CD/Admin possono modificare le sessioni
+                        @endif
+                    </p>
+
                     <!-- Members list -->
                     <div class="space-y-2">
                         <span class="block text-xs font-semibold uppercase tracking-wider text-gray-500">
@@ -76,6 +85,19 @@
                                 @foreach($group->users as $member)
                                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-brand-50 border border-brand-200 text-xs text-brand-900">
                                         <span>👤 {{ $member->name }}</span>
+                                        @if($member->pivot->can_manage_sessions)
+                                            <span title="Può gestire le sessioni del gruppo">⭐ Responsabile</span>
+                                        @endif
+                                        @if($group->is_active)
+                                            <form method="POST" action="{{ route('admin.groups.users.manager', [$group, $member]) }}" class="inline">
+                                                @csrf
+                                                @method('PUT')
+                                                <input type="hidden" name="can_manage_sessions" value="{{ $member->pivot->can_manage_sessions ? 0 : 1 }}">
+                                                <button type="submit" class="text-[10px] underline text-brand-700 hover:text-brand-900">
+                                                    {{ $member->pivot->can_manage_sessions ? 'Togli responsabilità' : 'Rendi responsabile' }}
+                                                </button>
+                                            </form>
+                                        @endif
                                         <form method="POST" action="{{ route('admin.groups.users.remove', [$group, $member]) }}" class="inline">
                                             @csrf
                                             @method('DELETE')
@@ -119,7 +141,7 @@
 </div>
 
 <!-- Modal Nuovo Gruppo -->
-<div id="newGroupModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-950/50 backdrop-blur-sm hidden">
+<div id="newGroupModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay backdrop-blur-sm hidden">
     <div class="panel max-w-md w-full p-6 sm:p-8 rounded-3xl border border-brand-200 shadow-2xl relative">
         <button type="button" onclick="closeNewGroupModal()" class="absolute top-5 right-5 text-gray-400 hover:text-brand-800 text-xl">
             &times;

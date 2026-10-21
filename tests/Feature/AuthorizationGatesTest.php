@@ -70,7 +70,7 @@ class AuthorizationGatesTest extends TestCase
         $this->assertTrue(Gate::forUser($cdUser)->allows('update-session', $event));
     }
 
-    public function test_membro_can_only_update_own_active_group_session(): void
+    public function test_membro_without_permission_cannot_update_sessions_but_manager_can_in_own_group_only(): void
     {
         $membro = User::create([
             'name' => 'Membro 1',
@@ -112,12 +112,37 @@ class AuthorizationGatesTest extends TestCase
         $this->assertFalse(Gate::forUser($membro)->allows('viewLogViewer'));
         $this->assertFalse(Gate::forUser($membro)->allows('manage-groups'));
         $this->assertFalse(Gate::forUser($membro)->allows('manage-assemblies'));
+        $this->assertFalse(Gate::forUser($membro)->allows('manage-users'));
 
-        // Can update session of own group
+        // Membro semplice: nessun permesso, neppure sulle sessioni create da lui
+        $this->assertFalse(Gate::forUser($membro)->allows('update-session', $ownSession));
+        $this->assertFalse(Gate::forUser($membro)->allows('delete-event', $ownSession));
+
+        // Con il permesso di gestione sul gruppo 1
+        $group1->setSessionManager($membro, true);
+        $membro = $membro->fresh();
         $this->assertTrue(Gate::forUser($membro)->allows('update-session', $ownSession));
-        // Cannot update session of other group
+        $this->assertTrue(Gate::forUser($membro)->allows('delete-event', $ownSession));
+        $this->assertTrue(Gate::forUser($membro)->allows('manage-group-sessions', $group1));
+        // Il permesso non vale su un altro gruppo
         $this->assertFalse(Gate::forUser($membro)->allows('update-session', $otherSession));
-        // Cannot update assembly
+        $this->assertFalse(Gate::forUser($membro)->allows('manage-group-sessions', $group2));
+        // Né sulle assemblee
         $this->assertFalse(Gate::forUser($membro)->allows('update-session', $assembly));
+
+        // Gruppo disattivato: il permesso non conta più
+        $group1->update(['is_active' => false]);
+        $this->assertFalse(Gate::forUser($membro->fresh())->allows('manage-group-sessions', $group1));
+    }
+
+    public function test_manage_users_gate_is_for_staff_only(): void
+    {
+        $admin = User::factory()->create()->assignRole('ADMIN');
+        $cd = User::factory()->create()->assignRole('CD');
+        $membro = User::factory()->create()->assignRole('Membro');
+
+        $this->assertTrue(Gate::forUser($admin)->allows('manage-users'));
+        $this->assertTrue(Gate::forUser($cd)->allows('manage-users'));
+        $this->assertFalse(Gate::forUser($membro)->allows('manage-users'));
     }
 }

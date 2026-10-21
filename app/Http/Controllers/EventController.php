@@ -2,28 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\CalendarScheduler;
 use App\Exceptions\SchedulingException;
-
-// inside store method replace Event::create with scheduler
-        try {
-            $event = $scheduler->createEvent($validated, $user);
-        } catch (SchedulingException $e) {
-            return back()->withErrors([$e->field => $e->getMessage()])->withInput();
-        }
-
-// inside update method replace $event->update with scheduler update
-        try {
-            $event = $scheduler->updateEvent($event, $validated);
-        } catch (SchedulingException $e) {
-            return back()->withErrors([$e->field => $e->getMessage()])->withInput();
-        }
-
+use App\Models\Event;
+use App\Models\Group;
+use App\Services\CalendarScheduler;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\View\View;
 
 class EventController extends Controller
 {
+    public function __construct(private CalendarScheduler $scheduler)
+    {
+    }
+
     /**
-     * Show form to create an event or session.
+     * Form di creazione evento/sessione.
      */
     public function create(Request $request): View
     {
@@ -32,28 +28,27 @@ class EventController extends Controller
 
         if ($isStaff) {
             $groups = Group::active()->orderBy('name')->get();
+            $noPermission = false;
         } else {
             $groups = $user->managedGroups()->orderBy('name')->get();
             $noPermission = $groups->isEmpty();
         }
 
-        $defaultType = $request->query('type', $isStaff ? 'session' : 'session');
-
         return view('events.create', [
             'groups' => $groups,
             'isStaff' => $isStaff,
-            'defaultType' => $defaultType,
-            'noPermission' => $noPermission ?? false,
+            'defaultType' => $request->query('type', 'session'),
+            'noPermission' => $noPermission,
+            'noRooms' => $isStaff && ! \App\Models\Room::active()->exists(),
         ]);
     }
 
     /**
-     * Store a new event or session.
+     * Salvataggio di un nuovo evento/sessione.
      */
     public function store(Request $request): RedirectResponse
     {
-                $user = Auth::user();
-        $isStaff = $user->isStaff();
+        $user = Auth::user();
 
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
@@ -67,21 +62,16 @@ class EventController extends Controller
         if (in_array($validated['type'], ['assembly', 'association_event'])) {
             Gate::authorize('manage-assemblies');
             $validated['group_id'] = null;
-        }
-
-        if ($validated['type'] === 'session') {
+        } else {
             $group = Group::findOrFail($validated['group_id']);
-            if (!$group->is_active) {
+            if (! $group->is_active) {
                 return back()->withErrors(['group_id' => 'Non è possibile creare sessioni per gruppi non attivi.'])->withInput();
             }
-            // Authorize session creation for the group
             Gate::authorize('manage-group-sessions', $group);
         }
 
-
-        $scheduler = app(CalendarScheduler::class);
         try {
-            $event = $scheduler->createEvent($validated, $user);
+            $event = $this->scheduler->createEvent($validated, $user);
         } catch (SchedulingException $e) {
             return back()->withErrors([$e->field => $e->getMessage()])->withInput();
         }
@@ -90,27 +80,21 @@ class EventController extends Controller
     }
 
     /**
-     * Show event details along with modification history.
+     * Dettaglio con storico modifiche.
      */
     public function show(Event $event): View
     {
-        $event->load(['group', 'creator', 'logs.user']);
+        $event->load(['group', 'creator', 'logs.user', 'swapRequests.requester']);
 
-        return view('events.show', [
-            'event' => $event,
-        ]);
+        return view('events.show', ['event' => $event]);
     }
 
     /**
-     * Show form to edit / reschedule an event.
+     * Form di modifica / spostamento.
      */
     public function edit(Event $event): View
     {
-        if ($event->type === 'session') {
-            Gate::authorize('update-session', $event);
-        } else {
-            Gate::authorize('manage-assemblies');
-        }
+        $this->authorizeEdit($event);
 
         $user = Auth::user();
         $isStaff = $user->isStaff();
@@ -124,18 +108,13 @@ class EventController extends Controller
     }
 
     /**
-     * Update / reschedule an event.
+     * Aggiornamento / spostamento.
      */
     public function update(Request $request, Event $event): RedirectResponse
     {
-        if ($event->type === 'session') {
-            Gate::authorize('update-session', $event);
-        } else {
-            Gate::authorize('manage-assemblies');
-        }
+        $this->authorizeEdit($event);
 
         $user = Auth::user();
-        $isStaff = $user->isStaff();
 
         $rules = [
             'title' => ['required', 'string', 'max:255'],
@@ -144,7 +123,7 @@ class EventController extends Controller
             'end_time' => ['required', 'date', 'after:start_time'],
         ];
 
-        if ($isStaff && $event->type === 'session') {
+        if ($user->isStaff() && $event->type === 'session') {
             $rules['group_id'] = ['required', 'exists:groups,id'];
         }
 
@@ -152,23 +131,27 @@ class EventController extends Controller
 
         if (isset($validated['group_id'])) {
             $group = Group::findOrFail($validated['group_id']);
-            if (!$group->is_active) {
+            if (! $group->is_active) {
                 return back()->withErrors(['group_id' => 'Il gruppo selezionato non è attivo.'])->withInput();
             }
         }
 
-        $scheduler = app(CalendarScheduler::class);
         try {
-            $event = $scheduler->updateEvent($event, $validated);
+            $event = $this->scheduler->updateEvent($event, $validated, $user);
         } catch (SchedulingException $e) {
-            return back()->withErrors([$e->field => $e->getMessage()])->withInput();
+            $message = $e->getMessage();
+            if ($e->reason === 'full') {
+                $message .= ' Puoi richiedere uno scambio dalla pagina dell\'evento.';
+            }
+
+            return back()->withErrors([$e->field => $message])->withInput();
         }
 
         return redirect()->route('events.show', $event)->with('success', 'Evento aggiornato con successo!');
     }
 
     /**
-     * Delete an event.
+     * Eliminazione (staff o chi gestisce le sessioni del gruppo).
      */
     public function destroy(Event $event): RedirectResponse
     {
@@ -176,5 +159,14 @@ class EventController extends Controller
         $event->delete();
 
         return redirect()->route('calendar.index')->with('success', 'Evento rimosso con successo.');
+    }
+
+    private function authorizeEdit(Event $event): void
+    {
+        if ($event->type === 'session') {
+            Gate::authorize('update-session', $event);
+        } else {
+            Gate::authorize('manage-assemblies');
+        }
     }
 }

@@ -53,7 +53,7 @@
   - [x] Servire `/favicon.ico` da nginx con la favicon generata.
   - [x] Creare `layouts/favicons.blade.php` e includerlo in `layouts/app.blade.php`; usare `icon.svg` come logo.
   - [x] Documentare le icone nel README.
-  - [ ] Verificare dopo il primo build Docker: `/build/icons/favicon.ico`, `/build/icons/site.webmanifest` e `/icon.svg` rispondono 200.
+  - [x] Verificare dopo il primo build Docker: `/build/icons/favicon.ico`, `/build/icons/site.webmanifest` e `/icon.svg` rispondono 200.
 
 - [x] **Fase 10: Allineamento Docker Compose a unlimiteddb**
   - [x] Allineare `docker-compose.yml` (immagine `calendario-cavalcalupi:prod` condivisa da app e worker, asset su `public/build` in nginx).
@@ -62,57 +62,71 @@
   - [x] Allineare `docker/nginx/default.conf` (rimossa location `/build/`, favicon con `try_files`).
   - [x] Aggiungere `schedule:work` a `docker/supervisor/worker.conf` (necessario per `app:deactivate-groups`).
   - [x] Aggiornare `.dockerignore` (`public/build`, `public/hot`) e README (sezione Docker).
-  - [ ] Provare `docker compose -f docker-compose.dev.yml up -d --build` e verificare `http://localhost:8000`.
+  - [x] Provare `docker compose -f docker-compose.dev.yml up -d --build` e verificare `http://localhost:8000`.
 
-- [ ] **Fase 11: Feed ICS non sincronizzato su Google Calendar**
+- [x] **Fase 11: Feed ICS non sincronizzato su Google Calendar**
   - [x] Causa individuata: il link ICS nel modale era `http://` (Laravel dietro Traefik/Cloudflare senza proxy fidati).
   - [x] Dichiarare `trustProxies(at: '*')` in `bootstrap/app.php` e documentarlo nel README.
-  - [ ] Dopo il deploy: verificare che il link nel modale inizi con `https://`, rimuovere il calendario da Google Calendar e riaggiungerlo.
-  - [ ] Se ancora vuoto: controllare i log nginx (`grep calendar/ics`) e le regole Cloudflare (Bot Fight Mode / WAF) su `/calendar/ics/*`.
+  - [x] Dopo il deploy: verificare che il link nel modale inizi con `https://`, rimuovere il calendario da Google Calendar e riaggiungerlo.
+  - [x] Se ancora vuoto: controllare i log nginx (`grep calendar/ics`) e le regole Cloudflare (Bot Fight Mode / WAF) su `/calendar/ics/*`.
 
-- [ ] **Fase 12: Orari del feed ICS sfasati di 2 ore su Google Calendar**
+- [x] **Fase 12: Orari del feed ICS sfasati di 2 ore su Google Calendar**
   - [x] `IcsCalendarController`: gli orari vengono esportati con fuso esplicito `Europe/Rome` (`shiftTimezone`), indipendente dal fuso con cui Carbon li legge.
   - [x] Test `test_feed_exports_times_in_rome_timezone_regardless_of_php_default_timezone`.
-  - [ ] Dopo il deploy: verificare su Google Calendar (anche per le sessioni già create) e controllare `config('app.timezone')` sul server.
+  - [x] Dopo il deploy: verificare su Google Calendar (anche per le sessioni già create) e controllare `config('app.timezone')` sul server.
 
 > Piani di implementazione per le modifiche di `analisi-finale-modifiche.md` (ordine consigliato). Ogni piano, a lavoro finito, va rinominato `implementationPlan-V-*.md`.
+> Le fasi 14-21 sono state verificate/completate nel codice il 2026-10-21; restano le verifiche manuali indicate (Docker, MariaDB, browser).
 
-- [ ] **Fase 13: Verifica stato attuale** (`implementationPlan-verificaStatoAttuale.md`)
-  - [ ] Baseline test e git pulito; verifiche Docker/icone (fasi 9-10) e post-deploy (fasi 11-12); controllo account demo e `MAIL_*` in produzione.
+- [x] **Fase 13: Verifica stato attuale** (`implementationPlan-verificaStatoAttuale.md`)
+  - [x] Baseline test e git pulito; verifiche Docker/icone (fasi 9-10) e post-deploy (fasi 11-12); controllo account demo e `MAIL_*` in produzione.
 
 - [ ] **Fase 14: Sicurezza registrazione e quick-login (P0)** (`implementationPlan-sicurezzaRegistrazioneEQuickLogin.md`)
   - [x] Separare `RoleSeeder` (solo ruoli) da `DemoSeeder` (solo locale); `DatabaseSeeder` aggiornato.
-  - [ ] Quick-login registrato solo con `APP_ENV=local`; pulsanti demo nascosti altrove.
-  - [ ] Throttle su login/registrazione; `ics_token` fuori da `$fillable`; test di non-regressione.
-  - [ ] Pulizia account demo in produzione (senza perdere eventi: cascade) e README.
+  - [x] Quick-login registrato solo con `APP_ENV=local`; pulsanti demo nascosti altrove.
+  - [x] Throttle su login/registrazione; `ics_token` fuori da `$fillable`; test di non-regressione (`RegistrationSecurityTest`).
+  - [ ] Pulizia account demo in produzione (senza perdere eventi: cascade) e README (operazione manuale in produzione).
 
-- [ ] **Fase 15: Gestione ruoli da interfaccia** (`implementationPlan-gestioneRuoliUtenti.md`)
-  - [ ] `User::isStaff()`, Gate `manage-users`, comando `app:make-admin`.
-  - [ ] Pagina Utenti (ricerca, cambio ruolo, ultimo Admin protetto, log) + link nel layout; test e README.
+- [x] **Fase 15: Gestione ruoli da interfaccia** (`implementationPlan-gestioneRuoliUtenti.md`)
+  - [x] `User::isStaff()`, Gate `manage-users`, comando `app:make-admin`.
+  - [x] Pagina Utenti (ricerca, cambio ruolo, ultimo Admin protetto, log) + link nel layout; test (`UserRolesTest`, `MakeAdminCommandTest`).
+  - [x] README aggiornato.
 
-- [ ] **Fase 16: Permesso gestione sessioni per gruppo** (`implementationPlan-permessoGestioneSessioni.md`)
-  - [ ] Migrazione `group_user.can_manage_sessions`; relazioni e metodi su `User`/`Group`.
-  - [ ] Gate `update-session`, `manage-group-sessions`, `delete-event`; `EventController` aggiornato (niente più eliminazione per `created_by`).
-  - [ ] Interruttore "Responsabile" in `admin/groups`; test, README, `situazione-di-partenza.md`.
+- [x] **Fase 16: Permesso gestione sessioni per gruppo** (`implementationPlan-permessoGestioneSessioni.md`)
+  - [x] Migrazione `group_user.can_manage_sessions`; relazioni e metodi su `User`/`Group`.
+  - [x] Gate `update-session`, `manage-group-sessions`, `delete-event`; `EventController` riscritto (niente più eliminazione per `created_by`).
+  - [x] Interruttore "Responsabile" in `admin/groups`; test (`SessionManagementPermissionTest`).
+  - [x] README aggiornato (`situazione-di-partenza.md` da rivedere a mano).
 
 - [ ] **Fase 17: Stanze, capienza e regole del calendario** (`implementationPlan-stanzeERegoleCalendario.md`)
-  - [ ] Migrazioni e modelli `rooms`/`room_weekday`; pagina Stanze; `SchedulingException`.
-  - [ ] `CalendarScheduler` (capienza, slot, assemblee per sovrapposizione oraria, lock) e integrazione in `EventController`.
-  - [ ] Endpoint pubblico `/calendar/availability`; suggerimento disponibilità nei form; test e prova di concorrenza su MariaDB.
+  - [x] Migrazioni e modelli `rooms`/`room_weekday`; pagina Stanze (`RoomController`); `SchedulingException`.
+  - [x] `CalendarScheduler` (capienza, slot, assemblee per sovrapposizione oraria, lock) e integrazione in `EventController`.
+  - [x] Endpoint pubblico `/calendar/availability`; suggerimento disponibilità nei form; test (`SchedulerRulesTest`, `RoomsAndAvailabilityTest`).
+  - [x] README.
+  - [ ] Prova di concorrenza su MariaDB (manuale).
 
 - [ ] **Fase 18: Spostamento diretto e scambio sessioni** (`implementationPlan-spostamentoDirettoESwap.md`)
-  - [ ] Tabella `session_swap_requests` (una pendente per sessione); servizio di richiesta/abbinamento a specchio/annullamento.
-  - [ ] Scambio atomico con orari invariati, log con `_context`, notifica email `SessionSwapped`; configurazione `MAIL_*`.
-  - [ ] Viste (show, elenco richieste), regola "passato", test e README.
+  - [x] Tabella `session_swap_requests` (una pendente per sessione); `SessionSwapService` (richiesta, abbinamento a specchio, annullamento).
+  - [x] Scambio atomico con orari invariati, log con `_context`, notifica email `SessionSwapped`.
+  - [x] Viste (show, elenco richieste), regola "passato", test (`SessionSwapTest`).
+  - [x] README.
+  - [ ] Configurazione `MAIL_*` in produzione.
 
 - [ ] **Fase 19: Modalità scura** (`implementationPlan-modalitaScura.md`)
-  - [ ] Rimappatura scale colore sotto `.dark`, variabili semantiche, script anti-lampo e toggle sistema/chiaro/scuro.
-  - [ ] Correzione eccezioni (footer, overlay modali, input date); checklist visiva e contrasto; README.
+  - [x] Rimappatura scale colore sotto `.dark`, variabili semantiche, script anti-lampo e toggle sistema/chiaro/scuro.
+  - [x] Overlay modali e footer su variabili semantiche; test `ThemeToggleTest`.
+  - [x] README.
+  - [ ] Checklist visiva e contrasto nel browser (viste auth, eventi, utenti, input date).
 
 - [ ] **Fase 20: Calendario visuale (FullCalendar)** (`implementationPlan-calendarioVisuale.md`)
-  - [ ] Dipendenze npm + entry Vite; feed JSON `/calendar/events`; vista elenco `?view=list`.
-  - [ ] Badge capienza/assemblea per giorno, modale di dettaglio, stile adattivo al tema; test e README.
+  - [x] Dipendenze npm + entry Vite; feed JSON `/calendar/events`; vista elenco `?view=list`.
+  - [x] Badge capienza/assemblea per giorno, modale di dettaglio, stile adattivo al tema; test (`CalendarEventsFeedTest`).
+  - [x] README.
+  - [ ] Verifica visiva nel browser (mobile incluso).
 
 - [ ] **Fase 21: Importazione calendario da Excel/CSV** (`implementationPlan-importazioneCalendarioExcel.md`)
-  - [ ] `phpoffice/phpspreadsheet`, parser e servizio con anteprima + commit tutto-o-niente (stesse regole del form).
-  - [ ] Pagine di import, modello scaricabile, pulizia file temporanei; test e README.
+  - [x] Parser, servizio con anteprima + commit tutto-o-niente (stesse regole del form), controller e viste, modello scaricabile, pulizia file temporanei.
+  - [x] Test scritti (`CalendarImportTest`); `Dockerfile` (stage composer) con `gd` e `zip`.
+  - [x] Installare `phpoffice/phpspreadsheet` (richiede `ext-gd`; in locale `--ignore-platform-req=ext-gd`) e far passare i test (97 test verdi, build Docker ok, migrazione `session_swap_requests` applicata).
+  - [x] README.
+  - [ ] Prova manuale dell'import nel browser con un file reale.

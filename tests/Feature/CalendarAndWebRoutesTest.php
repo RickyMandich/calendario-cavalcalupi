@@ -5,25 +5,28 @@ namespace Tests\Feature;
 use App\Models\Event;
 use App\Models\Group;
 use App\Models\User;
+use Database\Seeders\DemoSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\CreatesRooms;
 use Tests\TestCase;
 
 class CalendarAndWebRoutesTest extends TestCase
 {
+    use CreatesRooms;
     use RefreshDatabase;
 
     protected function setUp(): void
     {
         parent::setUp();
+        // L'ambiente di test non è produzione: il DemoSeeder gira (utenti, gruppo e stanze demo).
         $this->seed(RoleSeeder::class);
+        $this->seed(DemoSeeder::class);
     }
 
     public function test_calendar_page_is_accessible(): void
     {
-        $response = $this->get('/calendar');
-        $response->assertStatus(200);
-        $response->assertSee('Calendario Attività');
+        $this->get('/calendar')->assertOk()->assertSee('Calendario Attività');
     }
 
     public function test_authenticated_user_even_with_null_token_loads_calendar_and_auto_generates_token(): void
@@ -38,41 +41,44 @@ class CalendarAndWebRoutesTest extends TestCase
 
         $this->assertNull($user->getRawOriginal('ics_token'));
 
-        $response = $this->actingAs($user)->get('/calendar');
-        $response->assertStatus(200);
+        $this->actingAs($user)->get('/calendar')->assertOk();
 
         $this->assertNotNull(\Illuminate\Support\Facades\DB::table('users')->where('id', $user->id)->value('ics_token'));
     }
 
-    public function test_login_and_quick_login(): void
+    public function test_real_login_with_demo_admin(): void
     {
-        $response = $this->get('/quick-login/admin');
-        $response->assertRedirect('/calendar');
+        $this->post('/login', ['email' => 'admin@cavalcalupi.it', 'password' => 'password'])
+            ->assertRedirect('/calendar');
+
         $this->assertAuthenticated();
         $this->assertTrue(auth()->user()->hasRole('ADMIN'));
+    }
+
+    public function test_quick_login_is_not_available_outside_local(): void
+    {
+        $this->get('/quick-login/admin')->assertNotFound();
+        $this->assertGuest();
     }
 
     public function test_membro_cannot_access_admin_groups(): void
     {
         $membro = User::where('email', 'membro@cavalcalupi.it')->first();
 
-        $response = $this->actingAs($membro)->get('/admin/groups');
-        $response->assertStatus(403);
+        $this->actingAs($membro)->get('/admin/groups')->assertForbidden();
     }
 
     public function test_cd_can_access_and_create_group(): void
     {
         $cd = User::where('email', 'cd@cavalcalupi.it')->first();
 
-        $response = $this->actingAs($cd)->get('/admin/groups');
-        $response->assertStatus(200);
+        $this->actingAs($cd)->get('/admin/groups')->assertOk();
 
-        $response = $this->actingAs($cd)->post('/admin/groups', [
+        $this->actingAs($cd)->post('/admin/groups', [
             'name' => 'Tavolo Warhammer 40k',
             'is_active' => 1,
-        ]);
+        ])->assertRedirect(route('admin.groups.index'));
 
-        $response->assertRedirect(route('admin.groups.index'));
         $this->assertDatabaseHas('groups', ['name' => 'Tavolo Warhammer 40k']);
     }
 
@@ -82,11 +88,9 @@ class CalendarAndWebRoutesTest extends TestCase
         $membro = User::where('email', 'membro@cavalcalupi.it')->first();
         $inactiveGroup = Group::create(['name' => 'Tavolo Vecchio (stagione passata)', 'is_active' => false]);
 
-        $response = $this->actingAs($admin)->post(route('admin.groups.users.assign', $inactiveGroup), [
-            'user_id' => $membro->id,
-        ]);
-
-        $response->assertSessionHasErrors(['user_id']);
+        $this->actingAs($admin)
+            ->post(route('admin.groups.users.assign', $inactiveGroup), ['user_id' => $membro->id])
+            ->assertSessionHasErrors(['user_id']);
     }
 
     public function test_event_creation_and_update_with_logging(): void
@@ -94,7 +98,10 @@ class CalendarAndWebRoutesTest extends TestCase
         $admin = User::where('email', 'admin@cavalcalupi.it')->first();
         $activeGroup = Group::create(['name' => 'Tavolo Attivo', 'is_active' => true]);
 
-        $startTime = now()->addDays(4)->setTime(21, 00);
+        // Stanza aperta tutti i giorni, altrimenti la creazione via HTTP viene (correttamente) rifiutata
+        $this->createRoom(5);
+
+        $startTime = now()->addDays(4)->setTime(21, 0);
         $endTime = now()->addDays(4)->setTime(23, 30);
 
         $response = $this->actingAs($admin)->post(route('events.store'), [
@@ -110,36 +117,22 @@ class CalendarAndWebRoutesTest extends TestCase
         $this->assertNotNull($event);
         $response->assertRedirect(route('events.show', $event));
 
-        // Verify creation log
-        $this->assertDatabaseHas('event_logs', [
-            'event_id' => $event->id,
-            'action' => 'created',
-        ]);
-
-        // Reschedule event
-        $rescheduledStart = now()->addDays(5)->setTime(21, 30);
-        $rescheduledEnd = now()->addDays(5)->setTime(23, 45);
+        $this->assertDatabaseHas('event_logs', ['event_id' => $event->id, 'action' => 'created']);
 
         $updateResponse = $this->actingAs($admin)->put(route('events.update', $event), [
             'title' => 'Sessione Test Campagna Riprogrammata',
             'description' => 'Nuova descrizione',
-            'start_time' => $rescheduledStart->format('Y-m-d H:i:s'),
-            'end_time' => $rescheduledEnd->format('Y-m-d H:i:s'),
+            'start_time' => now()->addDays(5)->setTime(21, 30)->format('Y-m-d H:i:s'),
+            'end_time' => now()->addDays(5)->setTime(23, 45)->format('Y-m-d H:i:s'),
             'group_id' => $activeGroup->id,
         ]);
 
         $updateResponse->assertRedirect(route('events.show', $event));
+        $this->assertDatabaseHas('event_logs', ['event_id' => $event->id, 'action' => 'rescheduled']);
 
-        // Verify reschedule log
-        $this->assertDatabaseHas('event_logs', [
-            'event_id' => $event->id,
-            'action' => 'rescheduled',
-        ]);
-
-        // Show page displays the modification history
-        $showResponse = $this->actingAs($admin)->get(route('events.show', $event));
-        $showResponse->assertStatus(200);
-        $showResponse->assertSee('Storico Modifiche');
-        $showResponse->assertSee('Riprogrammata');
+        $this->actingAs($admin)->get(route('events.show', $event))
+            ->assertOk()
+            ->assertSee('Storico Modifiche')
+            ->assertSee('Riprogrammata');
     }
 }

@@ -6,6 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="theme-color" content="#15803d">
+    <meta name="color-scheme" content="light dark">
+    <!-- Anti-lampo: applica il tema prima del rendering (preferenza: chiaro / scuro / sistema) -->
+    <script>
+        (function () {
+            try {
+                var t = localStorage.getItem('theme') || 'system';
+                var dark = t === 'dark' || (t === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                document.documentElement.classList.toggle('dark', dark);
+            } catch (e) {}
+        })();
+    </script>
 
     <title>{{ $title ?? 'Calendario Cavalcalupi' }} - Associazione Cavalcalupi</title>
 
@@ -68,6 +79,25 @@
                             </a>
                         @endcan
 
+                        @can('manage-rooms')
+                            <a href="{{ route('admin.rooms.index') }}"
+                                class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('admin.rooms.*') ? 'bg-brand-100 text-brand-800 border border-brand-200' : 'text-gray-600 hover:text-brand-800 hover:bg-brand-50' }}">
+                                🏠 Stanze
+                            </a>
+                        @endcan
+
+                        @can('import-calendar')
+                            <a href="{{ route('admin.import.create') }}"
+                                class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('admin.import.*') ? 'bg-brand-100 text-brand-800 border border-brand-200' : 'text-gray-600 hover:text-brand-800 hover:bg-brand-50' }}">
+                                📥 Import
+                            </a>
+                        @endcan
+
+                        <a href="{{ route('swap-requests.index') }}"
+                            class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('swap-requests.*') ? 'bg-brand-100 text-brand-800 border border-brand-200' : 'text-gray-600 hover:text-brand-800 hover:bg-brand-50' }}">
+                            🔁 Scambi
+                        </a>
+
                         @can('manage-users')
                             <a href="{{ route('admin.users.index') }}"
                                 class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('admin.users.*') ? 'bg-brand-100 text-brand-800 border border-brand-200' : 'text-gray-600 hover:text-brand-800 hover:bg-brand-50' }}">
@@ -86,6 +116,7 @@
 
                 <!-- User actions -->
                 <div class="flex items-center gap-3">
+                    <button type="button" id="theme-toggle" class="btn-secondary px-2.5 py-1.5" title="Tema: sistema" aria-label="Cambia tema">🖥️</button>
                     @auth
                         <div class="flex items-center gap-2">
                             <div class="text-right hidden sm:block">
@@ -163,7 +194,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-brand-800 py-6 text-center text-xs text-brand-100">
+    <footer class="site-footer py-6 text-center text-xs">
         <p>Associazione Cavalcalupi &bull; Sistema Calendario & Feed ICS &bull; {{ date('Y') }}</p>
     </footer>
 
