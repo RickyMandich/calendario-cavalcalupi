@@ -6,6 +6,7 @@ use App\Models\Event;
 use App\Models\Group;
 use App\Models\Room;
 use App\Services\CalendarImport\CalendarImportService;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -48,7 +49,7 @@ class CalendarImportTest extends TestCase
     }
 
     /** Riga di serata: etichetta in A, un tavolo per colonna da B in poi. */
-    private function put(Worksheet $sheet, int $row, string $label, array $cells = []): void
+    private function day(Worksheet $sheet, int $row, string $label, array $cells = []): void
     {
         $sheet->setCellValue("A{$row}", $label);
         foreach ($cells as $i => $text) {
@@ -66,14 +67,14 @@ class CalendarImportTest extends TestCase
     private function december(Worksheet $sheet): void
     {
         $this->banner($sheet, 'A1:F1', 'DICEMBRE');
-        $this->put($sheet, 3, 'Giovedì 3', ["D&D 5.5\nIl Presagio del Corvo", "VILEBORN\nTales of Darkness", "SAVAGE WORLD\nRippers"]);
-        $this->put($sheet, 4, 'Venerdì 4', ["13TH AGE\nDragon Empire", 'SCUOLE MASTER', "D&D 5E\nIl Ritorno di Darkhen", "DAGGERHEART\nAOU / beast feast", "DAGGERHEART\nSignori del Deserto"]);
-        $this->put($sheet, 6, 'Giovedì 24');
-        $this->put($sheet, 7, 'Venerdì 25');
+        $this->day($sheet, 3, 'Giovedì 3', ["D&D 5.5\nIl Presagio del Corvo", "VILEBORN\nTales of Darkness", "SAVAGE WORLD\nRippers"]);
+        $this->day($sheet, 4, 'Venerdì 4', ["13TH AGE\nDragon Empire", 'SCUOLE MASTER', "D&D 5E\nIl Ritorno di Darkhen", "DAGGERHEART\nAOU / beast feast", "DAGGERHEART\nSignori del Deserto"]);
+        $this->day($sheet, 6, 'Giovedì 24');
+        $this->day($sheet, 7, 'Venerdì 25');
         $this->banner($sheet, 'B6:F7', 'VIGILIA DI NATALE E NATALE');
-        $this->put($sheet, 9, 'Giovedì 31');
+        $this->day($sheet, 9, 'Giovedì 31');
         $this->banner($sheet, 'B9:F9', "ULTIMO DELL'ANNO");
-        $this->put($sheet, 10, 'Venerdì 1');
+        $this->day($sheet, 10, 'Venerdì 1');
     }
 
     private function simple(string $month, array $days): callable
@@ -82,13 +83,13 @@ class CalendarImportTest extends TestCase
             $this->banner($sheet, 'A1:F1', $month);
             $row = 3;
             foreach ($days as [$label, $cells]) {
-                $this->put($sheet, $row, $label, $cells);
+                $this->day($sheet, $row, $label, $cells);
                 $row += 2;
             }
         };
     }
 
-    private function options(array $override = []): array
+    private function baseOptions(array $override = []): array
     {
         return array_merge([
             'season_year' => 2026,
@@ -102,13 +103,13 @@ class CalendarImportTest extends TestCase
     private function upload(UploadedFile $file, array $override = [], $user = null)
     {
         return $this->actingAs($user ?? $this->makeUser('CD'))
-            ->post(route('admin.import.store'), array_merge($this->options($override), ['file' => $file]));
+            ->post(route('admin.import.store'), array_merge($this->baseOptions($override), ['file' => $file]));
     }
 
     private function confirm($user, string $token, array $extra = [], array $override = [])
     {
         return $this->actingAs($user)->post(route('admin.import.confirm'), array_merge(
-            $this->options($override),
+            $this->baseOptions($override),
             ['token' => $token],
             $extra
         ));
@@ -194,10 +195,10 @@ class CalendarImportTest extends TestCase
     {
         $file = $this->book(function (Worksheet $sheet) {
             $this->banner($sheet, 'A1:F1', 'NOVEMBRE');
-            $this->put($sheet, 3, 'Giovedì 5', ["D&D 5E\nA"]);
+            $this->day($sheet, 3, 'Giovedì 5', ["D&D 5E\nA"]);
             $this->banner($sheet, 'A5:F5', 'DICEMBRE');
-            $this->put($sheet, 7, 'Giovedì 31', ["D&D 5E\nA"]);
-            $this->put($sheet, 8, 'Venerdì 1', ["D&D 5E\nB"]);
+            $this->day($sheet, 7, 'Giovedì 31', ["D&D 5E\nA"]);
+            $this->day($sheet, 8, 'Venerdì 1', ["D&D 5E\nB"]);
         });
 
         $preview = $this->upload($file)->viewData('preview');
@@ -209,12 +210,12 @@ class CalendarImportTest extends TestCase
     public function test_month_from_sheet_name_and_missing_month_error(): void
     {
         $byName = $this->book(function (Worksheet $sheet) {
-            $this->put($sheet, 2, 'Giovedì 3', ["D&D 5E\nA"]);
+            $this->day($sheet, 2, 'Giovedì 3', ["D&D 5E\nA"]);
         }, 'Dicembre');
         $this->assertSame('2026-12-03', $this->upload($byName)->viewData('preview')->rows->first()->date);
 
         $noMonth = $this->book(function (Worksheet $sheet) {
-            $this->put($sheet, 2, 'Giovedì 3', ["D&D 5E\nA"]);
+            $this->day($sheet, 2, 'Giovedì 3', ["D&D 5E\nA"]);
         }, 'Foglio1');
         $this->upload($noMonth)->assertSessionHasErrors('file');
     }
@@ -316,9 +317,9 @@ class CalendarImportTest extends TestCase
         $staff = $this->makeUser('CD');
         $file = $this->book(function (Worksheet $sheet) {
             $this->banner($sheet, 'A1:F1', 'OTTOBRE');
-            $this->put($sheet, 3, 'Giovedì 29');
+            $this->day($sheet, 3, 'Giovedì 29');
             $this->banner($sheet, 'B3:F3', 'GIOCO LIBERO');
-            $this->put($sheet, 4, 'Venerdì 30');
+            $this->day($sheet, 4, 'Venerdì 30');
             $this->banner($sheet, 'B4:F4', 'ONESHOT DI HALLOWEEN');
         });
 
@@ -343,7 +344,7 @@ class CalendarImportTest extends TestCase
         $staff = $this->makeUser('CD');
         $file = $this->book(function (Worksheet $sheet) {
             $this->banner($sheet, 'A1:F1', 'OTTOBRE');
-            $this->put($sheet, 3, 'Venerdì 30');
+            $this->day($sheet, 3, 'Venerdì 30');
             $this->banner($sheet, 'B3:F3', 'ASSEMBLEA DEI SOCI');
         });
 
@@ -377,26 +378,26 @@ class CalendarImportTest extends TestCase
         $this->assertStringContainsString('Nessuna stanza', $preview->rows->first()->errors[0]);
     }
 
-    public function test_assembly_banner_conflicts_with_sessions_of_the_same_evening(): void
+    public function test_assembly_banner_conflicts_with_an_existing_session_of_the_same_evening(): void
     {
         $staff = $this->makeUser('CD');
+        $group = Group::create(['name' => 'Esistente', 'is_active' => true]);
+        $this->makeSession($group, Carbon::create(2026, 12, 3, 0, 0, 0, config('app.timezone')), '21:30', '23:30');
+
         $file = $this->book(function (Worksheet $sheet) {
             $this->banner($sheet, 'A1:F1', 'DICEMBRE');
-            $this->put($sheet, 3, 'Giovedì 3', ["A\nUno"]);
-            $this->put($sheet, 5, 'Venerdì 4');
-            $this->banner($sheet, 'B5:F5', 'ASSEMBLEA');
-        });
-
-        $token = $this->upload($file, [], $staff)->viewData('token');
-        // stesso giorno e orario: sessione + assemblea
-        $file2 = $this->book(function (Worksheet $sheet) {
-            $this->banner($sheet, 'A1:F1', 'DICEMBRE');
-            $this->put($sheet, 3, 'Giovedì 3', ["A\nUno"]);
+            $this->day($sheet, 3, 'Giovedì 3');
             $this->banner($sheet, 'B3:F3', 'ASSEMBLEA');
         });
 
-        $this->assertNotNull($token);
-        $this->assertSame(0, $this->upload($file2)->viewData('preview')->rows->where('kind', 'table')->where('errors', [])->count() - 1 + 0 * 1);
+        $token = $this->upload($file, [], $staff)->viewData('token');
+
+        // come evento associativo va bene; come assemblea no (esclude gli altri eventi nello stesso orario)
+        $response = $this->confirm($staff, $token, ['banner_action' => [CalendarImportService::key('ASSEMBLEA') => 'assembly']])
+            ->assertOk();
+
+        $this->assertSame(1, $response->viewData('preview')->errorCount());
+        $this->assertSame(1, Event::count());
     }
 
     public function test_reimporting_the_same_sheet_reports_duplicates(): void

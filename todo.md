@@ -130,3 +130,13 @@
   - [x] Installare `phpoffice/phpspreadsheet` (richiede `ext-gd`; in locale `--ignore-platform-req=ext-gd`) e far passare i test (97 test verdi, build Docker ok, migrazione `session_swap_requests` applicata).
   - [x] README.
   - [ ] Prova manuale dell'import nel browser con un file reale.
+
+- [ ] **Fase 22: Import dal foglio mensile reale** (`implementationPlan-V-importazioneCalendarioFoglioMensile.md`)
+  - [x] Parser su layout a griglia (mese, etichette `Giovedì 3`, tavoli a 2 righe, bande su celle unite anche su due giorni, cambio mese).
+  - [x] Servizio: anno di stagione, controllo giorno della settimana, orari 21:30–00:00, sistema nella descrizione, select gruppi (anche «crea nuovo») e bande (associativo/assemblea/ignora), commit tutto-o-niente.
+  - [x] Controller, vista e test riscritti; rimosso il modello scaricabile; titolo del feed senza ripetizione del nome gruppo.
+  - [x] Pagina Utenti: riquadri arrotondati con bordino, `.badge` definita.
+  - [x] `php artisan test`: 103 test verdi (394 asserzioni).
+  - [x] Nginx: asset serviti da `/var/www/build` (fix `read-only file system` in produzione).
+  - [ ] Ricostruire/riavviare in dev e produzione (`dok.dev.up`, `git pull` + `docker compose up -d --build` sul server) e verificare `/build/...`, `/favicon.ico`.
+  - [ ] Provare con il **file Excel reale** (formato cella sistema/campagna, bande unite).

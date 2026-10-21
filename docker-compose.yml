@@ -27,7 +27,9 @@ services:
     volumes:
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
       - ./public:/var/www/html/public:ro
-      - build_assets:/var/www/html/public/build:ro
+      # Fuori da ./public (montato in sola lettura): un mount annidato lì richiederebbe che
+      # public/build esista sull'host (è in .gitignore) e farebbe fallire l'avvio di nginx.
+      - build_assets:/var/www/build:ro
     networks:
       - internal
       - proxy
