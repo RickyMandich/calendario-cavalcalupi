@@ -28,11 +28,13 @@ class GroupController extends Controller
             $q->orderBy('name');
         }])->withCount('events')->orderByDesc('is_active')->orderBy('name')->get();
 
-        $allUsers = User::orderBy('name')->get();
+        // Solo gli utenti con email verificata possono essere assegnati ai gruppi
+        $allUsers = User::whereNotNull('email_verified_at')->orderBy('name')->get();
 
         return view('admin.groups.index', [
             'groups' => $groups,
             'allUsers' => $allUsers,
+            'unverifiedCount' => User::whereNull('email_verified_at')->count(),
         ]);
     }
 

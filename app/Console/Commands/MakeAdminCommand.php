@@ -18,7 +18,7 @@ class MakeAdminCommand extends Command
     /**
      * The console command description.
      */
-    protected $description = 'Promuove un utente esistente a ADMIN (e rimuove eventuali altri ruoli).';
+    protected $description = 'Promuove un utente esistente a ADMIN (rimuove altri ruoli e segna l\'email come verificata).';
 
     /**
      * Execute the console command.
@@ -38,6 +38,13 @@ class MakeAdminCommand extends Command
             'name' => 'ADMIN',
             'guard_name' => 'web',
         ]);
+
+        // Un Admin deve avere l'email verificata: l'operazione da shell vale come verifica
+        // (serve anche per il primo Admin quando le email in produzione non sono ancora configurate).
+        if (! $user->hasVerifiedEmail()) {
+            $user->markEmailAsVerified();
+            $this->warn("L'email di {$email} non era verificata: segnata come verificata.");
+        }
 
         // Sync role to ADMIN only
         $user->syncRoles([$adminRole->name]);

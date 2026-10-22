@@ -26,7 +26,12 @@
                 @forelse($users as $user)
                     <tr class="border-t border-brand-100">
                         <td class="p-2">{{ $user->name }}</td>
-                        <td class="p-2">{{ $user->email }}</td>
+                        <td class="p-2">
+                            {{ $user->email }}
+                            @unless($user->hasVerifiedEmail())
+                                <span class="badge bg-amber-100 text-amber-800 border-amber-300 ml-1" title="Può essere solo Membro, senza gruppi né feed ICS">Email non verificata</span>
+                            @endunless
+                        </td>
                         <td class="p-2">{{ $user->created_at->format('d/m/Y') }}</td>
                         <td class="p-2">
                             @php $role = $user->roles->first()?->name ?? 'N/A'; @endphp
@@ -45,8 +50,8 @@
                                     @method('PUT')
                                     <select name="role" class="field w-32">
                                         <option value="Membro" {{ $role === 'Membro' ? 'selected' : '' }}>Membro</option>
-                                        <option value="CD" {{ $role === 'CD' ? 'selected' : '' }}>CD</option>
-                                        <option value="ADMIN" {{ $role === 'ADMIN' ? 'selected' : '' }}>ADMIN</option>
+                                        <option value="CD" {{ $role === 'CD' ? 'selected' : '' }} @disabled(! $user->hasVerifiedEmail())>CD</option>
+                                        <option value="ADMIN" {{ $role === 'ADMIN' ? 'selected' : '' }} @disabled(! $user->hasVerifiedEmail())>ADMIN</option>
                                     </select>
                                     <button type="submit" class="btn-primary">Salva</button>
                                 </form>

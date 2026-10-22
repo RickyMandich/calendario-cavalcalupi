@@ -4,7 +4,7 @@
 <div class="max-w-md mx-auto my-8">
     <div class="panel p-8 rounded-2xl shadow-xl">
         <div class="text-center mb-6">
-            <img src="{{ asset('icon.svg') }}" alt="" width="56" height="56" class="w-14 h-14 rounded-2xl mx-auto mb-3 shadow-md shadow-brand-600/20">
+            <img src="{{ asset('build/icons/android-chrome-192x192.png') }}" alt="" width="56" height="56" class="w-14 h-14 rounded-2xl mx-auto mb-3 shadow-md shadow-brand-600/20">
             <h1 class="text-2xl font-bold text-brand-950 tracking-tight">Accesso al Portale</h1>
             <p class="text-xs text-gray-500 mt-1">Inserisci le tue credenziali per gestire o consultare il calendario</p>
         </div>

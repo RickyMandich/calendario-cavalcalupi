@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -12,7 +12,12 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable
+/**
+ * INVARIANTE: un utente con email non verificata ha solo il ruolo Membro, non appartiene a gruppi
+ * e non ha il feed ICS. Fatto rispettare in Group::addUser, UserController::updateRole,
+ * IcsCalendarController e app:make-admin (che verifica l'email).
+ */
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasRoles, Notifiable;

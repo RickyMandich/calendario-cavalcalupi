@@ -10,6 +10,11 @@
             </div>
             <h1 class="text-3xl font-extrabold text-brand-950 tracking-tight">Gestione Gruppi & Tavoli</h1>
             <p class="text-xs text-gray-500 mt-1">Crea nuovi tavoli di gioco, assegna membri e gestisci lo stato di attività</p>
+            @if($unverifiedCount > 0)
+                <p class="text-[11px] text-amber-700 mt-1">
+                    Possono essere assegnati solo utenti con email verificata ({{ $unverifiedCount }} non {{ $unverifiedCount === 1 ? 'verificato' : 'verificati' }}, non elencati).
+                </p>
+            @endif
         </div>
 
         <button type="button" onclick="openNewGroupModal()" class="btn-primary self-start sm:self-auto">

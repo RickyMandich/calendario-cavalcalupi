@@ -27,7 +27,8 @@ class IcsCalendarControllerTest extends TestCase
 
     public function test_valid_token_returns_calendar_feed_with_correct_filtering(): void
     {
-        $user = User::create([
+        // Factory: utente con email verificata (requisito per gruppi e feed ICS)
+        $user = User::factory()->create([
             'name' => 'Mario',
             'email' => 'mario@test.com',
             'password' => bcrypt('secret123'),
@@ -83,7 +84,7 @@ class IcsCalendarControllerTest extends TestCase
 
     public function test_feed_exports_times_in_rome_timezone_regardless_of_php_default_timezone(): void
     {
-        $user = User::create([
+        $user = User::factory()->create([
             'name' => 'Mario',
             'email' => 'mario@test.com',
             'password' => bcrypt('secret123'),

@@ -150,6 +150,22 @@
   - [ ] Copiare il file in `public/modello-importazione-calendario.xlsx` (il link dà 404 finché il file non c'è) e fare commit.
   - [ ] Provare: scaricare il modello dalla pagina, ricaricarlo nell'import (anno stagione 2026) e controllare che l'anteprima lo legga (gruppi di esempio, bande, errori solo per stanze/capienza).
 
+- [ ] **Fase 25: Fix logo 404 e navbar mobile** (`implementationPlan-V-fixLogoENavbarMobile.md`)
+  - [x] Causa del 404: location nginx `= /icon.svg` con `try_files /public/icon.svg` (percorso doppio `public/public`); rimossa.
+  - [x] Logo (header, login, registrazione) e favicon dai file generati in `build/icons` (niente più `icon.svg` diretto).
+  - [x] Menu a comparsa mobile (hamburger, `nav.js`), link in `layouts/partials/nav-links.blade.php`, account in fondo al menu sotto `sm`.
+  - [x] Test `NavigationTest`, README.
+  - [ ] Lanciare `php artisan test`, `npm run build` e provare nel browser a 375px; dopo il deploy verificare `/build/icons/android-chrome-192x192.png` (200).
+
+- [ ] **Fase 26: Verifica email e restrizioni per utenti non verificati** (`implementationPlan-V-verificaEmail.md`)
+  - [x] `User implements MustVerifyEmail`, `EmailVerificationController`, rotte `verification.*`, email in italiano, invio alla registrazione (in `try/catch`).
+  - [x] Non verificato: solo ruolo Membro (`UserController`), niente gruppi (`Group::addUser`, elenco in `admin/groups`), niente feed ICS (403 + modale nascosto).
+  - [x] Banner nel layout, pagina `auth/verify-email`, badge nella pagina Utenti, `app:make-admin` e `DemoSeeder` verificano l'email.
+  - [x] Migrazione backfill (staff e membri di gruppi esistenti = verificati).
+  - [x] Test `EmailVerificationTest`; `AuthorizationGatesTest`, `EventAndGroupLogicTest`, `IcsCalendarControllerTest` passati a `User::factory()`; README.
+  - [ ] Lanciare `php artisan test` (non eseguito) e `php artisan migrate`.
+  - [ ] Configurare `MAIL_*` in produzione e provare registrazione + link di verifica; dopo il deploy controllare quali utenti esistenti risultano non verificati.
+
 - [ ] **Fase 23: `.env-overrides` e versionamento (allineato a unlimiteddb)**
   - [x] Creare `.env-overrides` (tracciato in Git) con `APP_VERSION_TYPE/PRIMARY/SECONDARY/TERTIARY` e `APP_VERSION` (parte da `1.0.0`).
   - [x] Caricarlo in `bootstrap/app.php` con `Dotenv::createMutable(...)->safeLoad()` prima di `Application::configure(...)`.

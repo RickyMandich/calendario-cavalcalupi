@@ -20,7 +20,7 @@
 
     <title>{{ $title ?? 'Calendario Cavalcalupi' }} - Associazione Cavalcalupi</title>
 
-    <!-- Icone del sito (generate da public/icon.svg, vedi docker/icons/generate-icons.sh) -->
+    {{-- Icone del sito: file generati nel build (vedi docker/icons/generate-icons.sh) --}}
     @include('layouts.favicons')
 
     <!-- Google Fonts -->
@@ -48,9 +48,9 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <!-- Brand / Logo -->
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-3 min-w-0">
                     <a href="{{ route('calendar.index') }}" class="flex items-center gap-3 group">
-                        <img src="{{ asset('icon.svg') }}" alt="Cavalcalupi" width="40" height="40"
+                        <img src="{{ asset('build/icons/android-chrome-192x192.png') }}" alt="Cavalcalupi" width="40" height="40"
                             class="w-10 h-10 rounded-xl shadow-md shadow-brand-600/20 group-hover:scale-105 transition-transform">
                         <div>
                             <span class="text-lg font-bold text-brand-800">
@@ -64,62 +64,17 @@
                     </a>
                 </div>
 
-                <!-- Navigation Links -->
-                <nav class="hidden md:flex items-center gap-1 sm:gap-2">
-                    <a href="{{ route('calendar.index') }}"
-                        class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('calendar.*') ? 'bg-brand-100 text-brand-800 border border-brand-200' : 'text-gray-600 hover:text-brand-800 hover:bg-brand-50' }}">
-                        📅 Calendario
-                    </a>
-
-                    @auth
-                        @can('manage-groups')
-                            <a href="{{ route('admin.groups.index') }}"
-                                class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('admin.groups.*') ? 'bg-brand-100 text-brand-800 border border-brand-200' : 'text-gray-600 hover:text-brand-800 hover:bg-brand-50' }}">
-                                👥 Gestione Gruppi
-                            </a>
-                        @endcan
-
-                        @can('manage-rooms')
-                            <a href="{{ route('admin.rooms.index') }}"
-                                class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('admin.rooms.*') ? 'bg-brand-100 text-brand-800 border border-brand-200' : 'text-gray-600 hover:text-brand-800 hover:bg-brand-50' }}">
-                                🏠 Stanze
-                            </a>
-                        @endcan
-
-                        @can('import-calendar')
-                            <a href="{{ route('admin.import.create') }}"
-                                class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('admin.import.*') ? 'bg-brand-100 text-brand-800 border border-brand-200' : 'text-gray-600 hover:text-brand-800 hover:bg-brand-50' }}">
-                                📥 Import
-                            </a>
-                        @endcan
-
-                        <a href="{{ route('swap-requests.index') }}"
-                            class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('swap-requests.*') ? 'bg-brand-100 text-brand-800 border border-brand-200' : 'text-gray-600 hover:text-brand-800 hover:bg-brand-50' }}">
-                            🔁 Scambi
-                        </a>
-
-                        @can('manage-users')
-                            <a href="{{ route('admin.users.index') }}"
-                                class="px-3 py-2 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('admin.users.*') ? 'bg-brand-100 text-brand-800 border border-brand-200' : 'text-gray-600 hover:text-brand-800 hover:bg-brand-50' }}">
-                                👤 Utenti
-                            </a>
-                        @endcan
-
-                        @role('ADMIN')
-                            <a href="/log-viewer" target="_blank"
-                                class="px-3 py-2 text-sm font-medium rounded-lg text-amber-700 hover:text-amber-800 hover:bg-amber-50 border border-amber-200 transition-colors">
-                                📋 Log Viewer
-                            </a>
-                        @endrole
-                    @endauth
+                <!-- Navigation Links (da md in su; sotto md c'è il menu a comparsa #mobile-menu) -->
+                <nav class="hidden md:flex items-center gap-1 sm:gap-2" aria-label="Menu principale">
+                    @include('layouts.partials.nav-links', ['mobile' => false])
                 </nav>
 
                 <!-- User actions -->
                 <div class="flex items-center gap-3">
                     <button type="button" id="theme-toggle" class="btn-secondary px-2.5 py-1.5" title="Tema: sistema" aria-label="Cambia tema">🖥️</button>
                     @auth
-                        <div class="flex items-center gap-2">
-                            <div class="text-right hidden sm:block">
+                        <div class="hidden sm:flex items-center gap-2">
+                            <div class="text-right">
                                 <div class="text-xs font-semibold text-gray-900 leading-tight">{{ Auth::user()->name }}
                                 </div>
                                 <div class="text-[10px] text-gray-500 uppercase tracking-wider">
@@ -148,15 +103,87 @@
                                 Accedi
                             </a>
                             <a href="{{ route('register') }}"
-                                class="px-3 py-1.5 text-xs font-medium rounded-lg bg-white hover:bg-brand-50 text-gray-700 border border-gray-300 transition-colors">
+                                class="hidden sm:inline-block px-3 py-1.5 text-xs font-medium rounded-lg bg-white hover:bg-brand-50 text-gray-700 border border-gray-300 transition-colors">
                                 Registrati
                             </a>
                         </div>
+                    @endauth
+
+                    <!-- Pulsante del menu a comparsa (solo sotto md) -->
+                    <button type="button" id="nav-toggle"
+                        class="md:hidden btn-secondary px-2.5 py-1.5"
+                        aria-controls="mobile-menu" aria-expanded="false" aria-label="Apri il menu">
+                        <svg data-nav-icon="open" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke-width="2" stroke="currentColor" class="w-5 h-5" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5" />
+                        </svg>
+                        <svg data-nav-icon="close" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke-width="2" stroke="currentColor" class="w-5 h-5 hidden" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu a comparsa (sotto md) -->
+        <div id="mobile-menu" class="hidden md:hidden border-t border-brand-100 max-h-[calc(100vh-4rem)] overflow-y-auto">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3">
+                <nav class="flex flex-col gap-1" aria-label="Menu principale (mobile)">
+                    @include('layouts.partials.nav-links', ['mobile' => true])
+                </nav>
+
+                <!-- Account: nell'header manca lo spazio sotto sm, quindi sta qui -->
+                <div class="sm:hidden mt-3 pt-3 border-t border-brand-100">
+                    @auth
+                        <div class="flex items-center justify-between gap-3">
+                            <div class="min-w-0">
+                                <div class="text-sm font-semibold text-gray-900 truncate">{{ Auth::user()->name }}</div>
+                                <div class="text-[10px] text-gray-500 uppercase tracking-wider">
+                                    @if (Auth::user()->hasRole('ADMIN'))
+                                        <span class="text-red-600 font-bold">Admin</span>
+                                    @elseif(Auth::user()->hasRole('CD'))
+                                        <span class="text-amber-600 font-bold">CD</span>
+                                    @else
+                                        <span class="text-brand-700 font-semibold">Membro</span>
+                                    @endif
+                                </div>
+                            </div>
+                            <form method="POST" action="{{ route('logout') }}" class="shrink-0">
+                                @csrf
+                                <button type="submit"
+                                    class="px-3 py-1.5 text-xs font-medium rounded-lg bg-white hover:bg-brand-50 text-gray-700 hover:text-brand-800 border border-gray-300 transition-colors">
+                                    Esci
+                                </button>
+                            </form>
+                        </div>
+                    @else
+                        <a href="{{ route('register') }}"
+                            class="block w-full text-center px-3 py-2 text-sm font-medium rounded-lg bg-white hover:bg-brand-50 text-gray-700 border border-gray-300 transition-colors">
+                            Registrati
+                        </a>
                     @endauth
                 </div>
             </div>
         </div>
     </header>
+
+    <!-- Avviso email non verificata -->
+    @auth
+        @unless (Auth::user()->hasVerifiedEmail())
+            <div id="verify-email-banner" class="bg-amber-50 border-b border-amber-200">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-amber-800">
+                    <span>✉️ Verifica il tuo indirizzo email: finché non lo fai non puoi essere assegnato a un gruppo né usare il feed ICS.</span>
+                    <form method="POST" action="{{ route('verification.send') }}" class="shrink-0">
+                        @csrf
+                        <button type="submit" class="px-3 py-1 font-semibold rounded-lg border border-amber-300 bg-white hover:bg-amber-100 text-amber-800 transition-colors">
+                            Reinvia email di verifica
+                        </button>
+                    </form>
+                </div>
+            </div>
+        @endunless
+    @endauth
 
     <!-- Flash Messages -->
     @if (session('success'))

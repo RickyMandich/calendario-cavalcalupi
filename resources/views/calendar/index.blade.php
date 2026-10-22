@@ -21,11 +21,18 @@
 
             <div class="flex flex-wrap items-center gap-3">
                 @auth
-                    <!-- ICS Feed Button -->
-                    <button type="button" onclick="openIcsModal()" class="btn-secondary">
-                        <span>📲</span>
-                        <span>Feed ICS Personale</span>
-                    </button>
+                    <!-- ICS Feed Button (solo con email verificata) -->
+                    @if(Auth::user()->hasVerifiedEmail())
+                        <button type="button" onclick="openIcsModal()" class="btn-secondary">
+                            <span>📲</span>
+                            <span>Feed ICS Personale</span>
+                        </button>
+                    @else
+                        <a href="{{ route('verification.notice') }}" class="btn-secondary">
+                            <span>✉️</span>
+                            <span>Verifica l'email per il Feed ICS</span>
+                        </a>
+                    @endif
 
                     <!-- Create Event Button (solo chi può gestire sessioni) -->
                     @if($canCreateSessions)
@@ -217,8 +224,8 @@
 </div>
 @endif
 
-<!-- ICS Link Modal -->
-@auth
+<!-- ICS Link Modal (solo con email verificata) -->
+@if(Auth::check() && Auth::user()->hasVerifiedEmail())
 <div id="icsModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay backdrop-blur-sm hidden">
     <div class="panel max-w-lg w-full p-6 sm:p-8 rounded-3xl border border-brand-200 shadow-2xl relative">
         <button type="button" onclick="closeIcsModal()" class="absolute top-5 right-5 text-gray-400 hover:text-brand-800 text-xl">
@@ -270,7 +277,7 @@
         </div>
     </div>
 </div>
-@endauth
+@endif
 
 @push('scripts')
 @if($view === 'calendar')

@@ -39,8 +39,6 @@ if (el) {
         },
     });
 
-    calendar.render();
-
     // ---- Capienza / assemblee per giorno ----
     let availabilityToken = 0;
 
@@ -132,4 +130,9 @@ if (el) {
             if (e.key === 'Escape') closeEventModal();
         });
     }
+
+    // IMPORTANTE: render() va chiamato per ultimo. Scatena subito `datesSet` -> loadAvailability, che usa
+    // `availabilityToken` (let) e `modal` (const): se fossero dichiarati dopo render() si avrebbe
+    // "ReferenceError: Cannot access ... before initialization" (zona morta temporale).
+    calendar.render();
 }

@@ -1,8 +1,6 @@
-{{-- Icone del sito: generate dal Dockerfile (stage icon-builder) a partire da public/icon.svg,
-     consegnate in public/build/icons. Vedi docker/icons/generate-icons.sh.
-     L'SVG è il primo della lista: i browser moderni lo preferiscono e funziona anche in
-     sviluppo locale senza Docker (dove build/icons non esiste). --}}
-<link rel="icon" type="image/svg+xml" href="{{ asset('icon.svg') }}">
+{{-- Icone del sito: file generati dal Dockerfile (stage icon-builder) a partire da public/icon.svg,
+     consegnati in public/build/icons (serviti da nginx su /build/icons/*). Vedi docker/icons/generate-icons.sh.
+     Non si referenzia direttamente l'SVG sorgente: si usano sempre i file generati dal build. --}}
 <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('build/icons/favicon-32x32.png') }}">
 <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('build/icons/favicon-16x16.png') }}">
 <link rel="shortcut icon" href="{{ asset('build/icons/favicon.ico') }}">

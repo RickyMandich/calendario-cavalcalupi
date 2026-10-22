@@ -21,6 +21,11 @@ class IcsCalendarController extends Controller
             abort(404, 'Feed calendario non trovato.');
         }
 
+        // Il feed personale esiste solo per chi ha verificato l'email.
+        if (! $user->hasVerifiedEmail()) {
+            abort(403, 'Verifica il tuo indirizzo email per usare il feed del calendario.');
+        }
+
         $activeGroupIds = $user->groups()
             ->where('is_active', true)
             ->pluck('groups.id')

@@ -58,8 +58,14 @@ class Group extends Model
             throw new DomainException('Impossibile assegnare un utente a un gruppo non attivo.');
         }
 
-        $userId = $user instanceof User ? $user->id : $user;
-        $this->users()->syncWithoutDetaching([$userId]);
+        $userModel = $user instanceof User ? $user : User::findOrFail($user);
+
+        // Gli utenti con email non verificata non possono far parte di gruppi.
+        if (! $userModel->hasVerifiedEmail()) {
+            throw new DomainException('L\'utente non ha ancora verificato l\'indirizzo email: non può essere assegnato a un gruppo.');
+        }
+
+        $this->users()->syncWithoutDetaching([$userModel->id]);
     }
     /**
      * Users who can manage sessions for this group.

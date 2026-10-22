@@ -72,7 +72,8 @@ class AuthorizationGatesTest extends TestCase
 
     public function test_membro_without_permission_cannot_update_sessions_but_manager_can_in_own_group_only(): void
     {
-        $membro = User::create([
+        // Factory: email verificata, altrimenti non potrebbe essere aggiunto al gruppo
+        $membro = User::factory()->create([
             'name' => 'Membro 1',
             'email' => 'membro1@test.com',
             'password' => bcrypt('secret123'),

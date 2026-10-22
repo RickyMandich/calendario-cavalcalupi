@@ -28,18 +28,22 @@ class DemoSeeder extends Seeder
             ['email' => 'admin@cavalcalupi.it'],
             ['name' => 'Amministratore Cavalcalupi', 'password' => bcrypt('password')]
         );
+        $admin->markEmailAsVerified();
         $admin->syncRoles(['ADMIN']);
 
         $cd = User::firstOrCreate(
             ['email' => 'cd@cavalcalupi.it'],
             ['name' => 'Consiglio Direttivo', 'password' => bcrypt('password')]
         );
+        $cd->markEmailAsVerified();
         $cd->syncRoles(['CD']);
 
         $membro = User::firstOrCreate(
             ['email' => 'membro@cavalcalupi.it'],
             ['name' => 'Membro Associazione', 'password' => bcrypt('password')]
         );
+        // Utenti demo con email verificata (altrimenti non potrebbero stare nel gruppo, essere CD/Admin né avere il feed)
+        $membro->markEmailAsVerified();
         $membro->syncRoles(['Membro']);
 
         // Gruppo demo con il membro come responsabile delle sessioni

@@ -5,6 +5,8 @@ namespace App\Providers;
 use App\Models\Event;
 use App\Models\Group;
 use App\Models\User;
+use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -23,6 +25,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Email di verifica in italiano
+        VerifyEmail::toMailUsing(function (object $notifiable, string $url) {
+            return (new MailMessage)
+                ->subject('Verifica il tuo indirizzo email')
+                ->greeting('Ciao '.$notifiable->name.',')
+                ->line('Conferma il tuo indirizzo email per poter essere assegnato ai gruppi e usare il feed ICS personale.')
+                ->action('Verifica email', $url)
+                ->line('Se non ti sei registrato tu, ignora questo messaggio.');
+        });
+
         // Log Viewer authorization - ADMIN only
         Gate::define('viewLogViewer', function (?User $user) {
             return $user !== null && $user->hasRole('ADMIN');

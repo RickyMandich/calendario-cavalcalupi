@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\CalendarImportController;
+use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\IcsCalendarController;
@@ -39,6 +40,13 @@ Route::get('/calendar/events', [CalendarController::class, 'events'])->name('cal
 Route::get('/calendar/availability', [CalendarController::class, 'availability'])->name('calendar.availability');
 
 Route::middleware('auth')->group(function () {
+    // Verifica email (senza middleware `verified`: l'utente non verificato deve poter navigare)
+    Route::get('/email/verify', [EmailVerificationController::class, 'notice'])->name('verification.notice');
+    Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])
+        ->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
+    Route::post('/email/verification-notification', [EmailVerificationController::class, 'send'])
+        ->middleware('throttle:6,1')->name('verification.send');
+
     // Events Management
     Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
     Route::post('/events', [EventController::class, 'store'])->name('events.store');

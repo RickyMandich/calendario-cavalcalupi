@@ -35,7 +35,8 @@ class EventAndGroupLogicTest extends TestCase
         $this->assertEquals(1, Group::active()->count());
         $this->assertEquals('Gruppo Lupi', Group::active()->first()->name);
 
-        $user = User::create([
+        // Factory: email verificata, altrimenti non potrebbe essere aggiunto al gruppo
+        $user = User::factory()->create([
             'name' => 'Luigi Verdi',
             'email' => 'luigi@example.com',
             'password' => bcrypt('secret123'),

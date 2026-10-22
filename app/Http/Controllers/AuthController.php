@@ -60,9 +60,17 @@ class AuthController extends Controller
         Role::firstOrCreate(['name' => 'Membro', 'guard_name' => 'web']);
         $user->assignRole('Membro');
 
+        // Invia il link di verifica email. Se l'SMTP non è configurato/raggiungibile la registrazione
+        // non deve fallire: l'utente può chiedere un nuovo invio dal banner.
+        try {
+            $user->sendEmailVerificationNotification();
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
         Auth::login($user);
 
-        return redirect()->route('calendar.index')->with('success', 'Registrazione completata con successo!');
+        return redirect()->route('calendar.index')->with('success', 'Registrazione completata! Ti abbiamo inviato un\'email: conferma l\'indirizzo per essere assegnato ai gruppi e usare il feed ICS.');
     }
 
     public function logout(Request $request): RedirectResponse

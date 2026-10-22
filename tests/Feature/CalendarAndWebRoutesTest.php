@@ -31,7 +31,8 @@ class CalendarAndWebRoutesTest extends TestCase
 
     public function test_authenticated_user_even_with_null_token_loads_calendar_and_auto_generates_token(): void
     {
-        $user = User::create([
+        // Factory: utente con email verificata (il token è mostrato solo a chi ha verificato l'email)
+        $user = User::factory()->create([
             'name' => 'Legacy User',
             'email' => 'legacy@test.com',
             'password' => bcrypt('secret123'),

@@ -45,6 +45,11 @@ class UserController extends Controller
         $oldRoles = $user->getRoleNames()->toArray();
         $old = $oldRoles ? $oldRoles[0] : null;
 
+        // Un utente con email non verificata può essere solo Membro
+        if ($newRole !== 'Membro' && ! $user->hasVerifiedEmail()) {
+            return back()->withErrors(['role' => 'Solo gli utenti con email verificata possono essere CD o Admin.']);
+        }
+
         // Prevent removing the last ADMIN
         if ($user->hasRole('ADMIN') && $newRole !== 'ADMIN' && User::role('ADMIN')->count() <= 1) {
             return back()->withErrors(['role' => 'Deve restare almeno un Admin.']);
