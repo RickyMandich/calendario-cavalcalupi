@@ -8,3 +8,13 @@ vendor
 # resterebbero nel CSS per sempre.
 public/build
 public/hot
+# Dati di runtime: ./storage è montato come volume (app e worker), quindi non serve nell'immagine.
+# Va escluso perché i file scritti dal container (www-data) possono avere permessi 0700 (es.
+# storage/app/private/imports): l'utente che lancia `docker compose build` sul server non può leggerli
+# e la build fallisce con "error from sender: open ...: permission denied".
+storage/app/private
+storage/app/public
+storage/logs
+storage/framework/cache
+storage/framework/sessions
+storage/framework/views

@@ -166,6 +166,12 @@
   - [ ] Lanciare `php artisan test` (non eseguito) e `php artisan migrate`.
   - [ ] Configurare `MAIL_*` in produzione e provare registrazione + link di verifica; dopo il deploy controllare quali utenti esistenti risultano non verificati.
 
+- [ ] **Fase 27: Deploy fallito per permessi su `storage/app/private/imports`**
+  - [x] Causa: la build Docker sul server non legge `storage/app/private/imports` (creata dal container con permessi 0700) -> `permission denied` nel build context.
+  - [x] `.dockerignore`: esclusi `storage/app/private`, `storage/app/public`, `storage/logs`, `storage/framework/{cache,sessions,views}`; README.
+  - [ ] Commit e push, poi verificare che il deploy (GitHub Actions) passi e che il sito mostri logo, hamburger e calendario senza errori in console.
+  - [ ] Dopo il deploy: `php artisan migrate` (lo fa l'entrypoint/deploy? controllare che la migrazione `2026_10_22_120000_...` sia stata applicata).
+
 - [ ] **Fase 23: `.env-overrides` e versionamento (allineato a unlimiteddb)**
   - [x] Creare `.env-overrides` (tracciato in Git) con `APP_VERSION_TYPE/PRIMARY/SECONDARY/TERTIARY` e `APP_VERSION` (parte da `1.0.0`).
   - [x] Caricarlo in `bootstrap/app.php` con `Dotenv::createMutable(...)->safeLoad()` prima di `Application::configure(...)`.
