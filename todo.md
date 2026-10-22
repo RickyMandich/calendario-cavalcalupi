@@ -187,3 +187,11 @@
   - [x] Verificato in locale: `env('APP_VERSION')` e `bash/all.sh` funzionano.
   - [x] Esporre la versione in `config('app.version')` (`config/app.php`) e mostrarla nel footer di `layouts/app.blade.php`.
   - [ ] Dopo il primo deploy: controllare la versione nel footer in produzione.
+
+- [ ] **Fase 29: Profilo utente e gestione utenti** (`implementationPlan-V-profiloEGestioneUtenti.md`)
+  - [x] Migrazione `2026_10_22_200000_make_user_references_nullable_on_user_delete`: `events.created_by`, `event_logs.user_id`, `session_swap_requests.requested_by` da `cascadeOnDelete` a `nullOnDelete` (eliminare un utente non cancella più le sue sessioni).
+  - [x] `ProfileController` + vista `profile/edit` + rotte `profile.*`: nome, email (password attuale, verifica riparte), password, rigenerazione token ICS; link al profilo dal nome nell'header e nel menu mobile.
+  - [x] `UserController`: `setVerified` (checkbox "Confermato"), `resendVerification` ("Reinvia mail"), `destroy` ("Elimina": non sé stessi, non l'ultimo Admin, scambi pendenti annullati, sessioni DB eliminate); vista `admin/users/index` aggiornata.
+  - [x] Test `ProfileTest` e `UserManagementActionsTest`; README.
+  - [ ] Lanciare `php artisan migrate` (dev e produzione) e `php artisan test` (non eseguiti: scritti senza poter lanciare PHP).
+  - [ ] Provare nel browser: modifica profilo, cambio email con mail reale (Resend), rigenerazione token + re-iscrizione calendario, checkbox Confermato, Reinvia mail, eliminazione di un utente di prova con sessioni create.

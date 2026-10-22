@@ -7,6 +7,7 @@ use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\IcsCalendarController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\SessionSwapController;
 use App\Http\Controllers\UserController;
@@ -47,6 +48,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/email/verification-notification', [EmailVerificationController::class, 'send'])
         ->middleware('throttle:6,1')->name('verification.send');
 
+    // Profilo dell'utente loggato (senza `verified`: chi non ha confermato l'email può comunque correggerla)
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'updateName'])->name('profile.update');
+    Route::put('/profile/email', [ProfileController::class, 'updateEmail'])->middleware('throttle:6,1')->name('profile.email');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->middleware('throttle:6,1')->name('profile.password');
+    Route::post('/profile/ics-token', [ProfileController::class, 'regenerateIcsToken'])->middleware('throttle:6,1')->name('profile.ics-token');
+
     // Events Management
     Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
     Route::post('/events', [EventController::class, 'store'])->name('events.store');
@@ -74,6 +82,10 @@ Route::middleware('auth')->group(function () {
     Route::prefix('admin')->name('admin.')->middleware('can:manage-users')->group(function () {
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::put('/users/{user}/role', [UserController::class, 'updateRole'])->name('users.role');
+        Route::put('/users/{user}/verified', [UserController::class, 'setVerified'])->name('users.verified');
+        Route::post('/users/{user}/verification-notification', [UserController::class, 'resendVerification'])
+            ->middleware('throttle:6,1')->name('users.verification');
+        Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     });
 
     // Manage rooms (Admin & CD)

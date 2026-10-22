@@ -75,7 +75,7 @@
                     @auth
                         <div class="hidden sm:flex items-center gap-2">
                             <div class="text-right">
-                                <div class="text-xs font-semibold text-gray-900 leading-tight">{{ Auth::user()->name }}
+                                <div class="text-xs font-semibold text-gray-900 leading-tight"><a href="{{ route('profile.edit') }}" class="hover:text-brand-700 hover:underline" title="Il mio profilo">{{ Auth::user()->name }}</a>
                                 </div>
                                 <div class="text-[10px] text-gray-500 uppercase tracking-wider">
                                     @if (Auth::user()->hasRole('ADMIN'))
@@ -138,7 +138,7 @@
                     @auth
                         <div class="flex items-center justify-between gap-3">
                             <div class="min-w-0">
-                                <div class="text-sm font-semibold text-gray-900 truncate">{{ Auth::user()->name }}</div>
+                                <div class="text-sm font-semibold text-gray-900 truncate"><a href="{{ route('profile.edit') }}" class="hover:text-brand-700 hover:underline" title="Il mio profilo">{{ Auth::user()->name }}</a></div>
                                 <div class="text-[10px] text-gray-500 uppercase tracking-wider">
                                     @if (Auth::user()->hasRole('ADMIN'))
                                         <span class="text-red-600 font-bold">Admin</span>
