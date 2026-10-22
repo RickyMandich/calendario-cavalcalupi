@@ -141,6 +141,15 @@
   - [ ] Ricostruire/riavviare in dev e produzione (`dok.dev.up`, `git pull` + `docker compose up -d --build` sul server) e verificare `/build/...`, `/favicon.ico`.
   - [ ] Provare con il **file Excel reale** (formato cella sistema/campagna, bande unite).
 
+- [ ] **Fase 24: modello Excel scaricabile nella pagina di import**
+  - [x] Creare il modello generico (ottobre 2026 + foglio "Istruzioni") e linkarlo in `admin/import/calendar.blade.php` con `asset('modello-importazione-calendario.xlsx')`.
+  - [x] Documentare nel README (sezione Import calendario).
+  - [x] Modello rivisto: righe vuote tra le settimane, sistema e gruppo in due celle sovrapposte, max 3 tavoli giovedì e 5 venerdì, "Gioco libero" solo sul giorno saltato.
+  - [x] `CalendarImportParser`: legge anche sistema + gruppo su due righe (riga sotto la serata); test `test_system_and_group_in_two_stacked_cells_are_read_like_one_cell`.
+  - [ ] Lanciare `php artisan test --filter=CalendarImportTest` (il test nuovo non è stato eseguito).
+  - [ ] Copiare il file in `public/modello-importazione-calendario.xlsx` (il link dà 404 finché il file non c'è) e fare commit.
+  - [ ] Provare: scaricare il modello dalla pagina, ricaricarlo nell'import (anno stagione 2026) e controllare che l'anteprima lo legga (gruppi di esempio, bande, errori solo per stanze/capienza).
+
 - [ ] **Fase 23: `.env-overrides` e versionamento (allineato a unlimiteddb)**
   - [x] Creare `.env-overrides` (tracciato in Git) con `APP_VERSION_TYPE/PRIMARY/SECONDARY/TERTIARY` e `APP_VERSION` (parte da `1.0.0`).
   - [x] Caricarlo in `bootstrap/app.php` con `Dotenv::createMutable(...)->safeLoad()` prima di `Application::configure(...)`.

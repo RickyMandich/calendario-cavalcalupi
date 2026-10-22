@@ -369,6 +369,30 @@ class CalendarImportTest extends TestCase
         $this->assertFalse($preview->canCommit());
     }
 
+    public function test_system_and_group_in_two_stacked_cells_are_read_like_one_cell(): void
+    {
+        // Giovedì 3: riga sistema + riga gruppo (celle sovrapposte, etichetta unita sulle due righe); Venerdì 4 subito dopo
+        $file = $this->book(function (Worksheet $sheet) {
+            $this->banner($sheet, 'A1:F1', 'DICEMBRE');
+            $sheet->setCellValue('A3', 'Giovedì 3');
+            $sheet->mergeCells('A3:A4');
+            $sheet->setCellValue('B3', 'D&D 5.5');
+            $sheet->setCellValue('B4', 'Il Presagio del Corvo');
+            $sheet->setCellValue('C4', 'SCUOLE MASTER'); // solo gruppo, sistema vuoto
+            $sheet->setCellValue('A5', 'Venerdì 4');
+            $sheet->mergeCells('A5:A6');
+            $sheet->setCellValue('B5', '13TH AGE');
+            $sheet->setCellValue('B6', 'Dragon Empire');
+        });
+
+        $preview = $this->upload($file)->viewData('preview');
+
+        $this->assertCount(3, $preview->rows);
+        $this->assertSame(['Il Presagio del Corvo', 'SCUOLE MASTER', 'Dragon Empire'], $preview->rows->map->groupName->all());
+        $this->assertSame(['D&D 5.5', null, '13TH AGE'], $preview->rows->map->system->all());
+        $this->assertTrue($preview->canCommit());
+    }
+
     public function test_day_without_rooms_is_an_error(): void
     {
         Room::query()->delete();

@@ -8,9 +8,13 @@
         </div>
         <h1 class="text-3xl font-extrabold text-brand-950 tracking-tight">Importa il calendario dal foglio Excel</h1>
         <p class="text-xs text-gray-500 mt-1 max-w-3xl">
-            Carica il foglio mensile usato oggi (titolo del mese, righe «Giovedì 3», «Venerdì 4», una cella per tavolo con sistema e campagna).
+            Carica il foglio mensile usato oggi (titolo del mese, righe «Giovedì 3», «Venerdì 4», un tavolo per colonna con sistema di gioco e campagna in due celle sovrapposte).
             Vedrai un'anteprima con gli errori riga per riga: <strong>se anche una sola riga è errata non viene creato nulla</strong>.
         </p>
+        <a href="{{ asset('modello-importazione-calendario.xlsx') }}" download
+           class="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-brand-200 bg-white text-brand-800 text-xs font-semibold hover:bg-brand-50">
+            <span>📥 Scarica il modello Excel</span>
+        </a>
     </div>
 
     @if(! $preview)
@@ -54,7 +58,7 @@
             <div class="text-xs text-gray-600 space-y-1">
                 <p><strong>Come viene letto il foglio</strong></p>
                 <ul class="list-disc list-inside space-y-0.5">
-                    <li>Ogni cella con testo accanto a «Giovedì 3» è un tavolo: prima riga = sistema di gioco (finisce nella descrizione), seconda riga = campagna = nome del gruppo. Una sola riga (es. «SCUOLE MASTER») è il nome del gruppo.</li>
+                    <li>Ogni colonna con testo accanto a «Giovedì 3» è un tavolo: cella sopra = sistema di gioco (finisce nella descrizione), cella sotto (riga successiva) = campagna = nome del gruppo. Con un solo testo (es. «SCUOLE MASTER») è il nome del gruppo.</li>
                     <li>Una cella unita su 3 o più colonne è una banda (festività, evento, assemblea, «Gioco libero»): nell'anteprima scegli cosa farne.</li>
                     <li>Le righe senza testo (es. un giorno chiuso) non producono nulla; un «Venerdì 1» dopo il 31 è del mese successivo.</li>
                     <li>Le sessioni rispettano stanze e capienza configurate: senza stanze per quel giorno o a giorno pieno la riga è in errore.</li>

@@ -100,20 +100,31 @@ class CalendarImportParser
             }
             $lastDay = $label['day'];
 
+            // Layout a due righe: sistema di gioco nella riga della serata, nome del gruppo nella riga subito sotto
+            // (due celle una sopra l'altra). Vale solo se la riga sotto non è a sua volta una serata o un titolo di mese.
+            $below = $table[$i + 1] ?? null;
+            if ($below !== null && ($this->dayLabel($below) || $this->hasMonthTitle($below))) {
+                $below = null;
+            }
+
             foreach ($cells as $col => $value) {
                 if ($col <= $label['col']) {
                     continue;
                 }
 
                 $text = $this->clean($value);
-                if ($text === '') {
+                $belowText = $below === null ? '' : $this->clean($below[$col] ?? null);
+
+                if ($text === '' && $belowText === '') {
                     continue;
                 }
 
-                $merge = $this->mergeAt($merges, $col + 1, $rowNumber);
+                $merge = $text === '' ? null : $this->mergeAt($merges, $col + 1, $rowNumber);
                 $width = $merge ? $merge[2] - $merge[0] + 1 : 1;
 
                 if ($width < self::BANNER_MIN_WIDTH) {
+                    // Tavolo: righe della cella sopra + righe della cella sotto (una sola se l'altra è vuota)
+                    $text = trim($text."\n".$belowText);
                     $out->push(new ParsedCell('table', $sheet->getTitle(), $rowNumber, $month, $label['day'], $label['weekday'], $label['text'], $text));
 
                     continue;
@@ -150,6 +161,17 @@ class CalendarImportParser
         }
 
         return null;
+    }
+
+    private function hasMonthTitle(array $cells): bool
+    {
+        foreach ($cells as $value) {
+            if ($this->monthFrom($this->clean($value))) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function monthFrom(string $text): ?int
