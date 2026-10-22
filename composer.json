@@ -15,6 +15,7 @@
         "mkocansey/bladewind": "^5.1",
         "opcodesio/log-viewer": "3.24",
         "phpoffice/phpspreadsheet": "^5.10",
+        "resend/resend-php": "^1.17",
         "spatie/icalendar-generator": "^3.3",
         "spatie/laravel-permission": "^6.25"
     },

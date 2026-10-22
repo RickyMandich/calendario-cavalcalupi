@@ -173,6 +173,12 @@
   - [ ] Commit e push, poi verificare che il deploy (GitHub Actions) passi e che il sito mostri logo, hamburger e calendario senza errori in console.
   - [ ] Dopo il deploy: `php artisan migrate` (lo fa l'entrypoint/deploy? controllare che la migrazione `2026_10_22_120000_...` sia stata applicata).
 
+- [ ] **Fase 28: Mailer Resend in produzione (`Class "Resend" not found`)**
+  - [x] Causa: `MAIL_MAILER=resend` ma il pacchetto `resend/resend-php` non è in `composer.json`/`composer.lock` (la registrazione non dà errore grazie al `try/catch`, l'email non parte).
+  - [x] README e `.env.example` documentano Resend.
+  - [ ] Lanciare `composer require resend/resend-php` (in locale senza gd: `--ignore-platform-req=ext-gd`), committare `composer.json` + `composer.lock`, deploy.
+  - [ ] Verificare in produzione: `RESEND_API_KEY` nel `.env`, `MAIL_FROM_ADDRESS` su dominio verificato in Resend, registrazione di prova e link di verifica.
+
 - [ ] **Fase 23: `.env-overrides` e versionamento (allineato a unlimiteddb)**
   - [x] Creare `.env-overrides` (tracciato in Git) con `APP_VERSION_TYPE/PRIMARY/SECONDARY/TERTIARY` e `APP_VERSION` (parte da `1.0.0`).
   - [x] Caricarlo in `bootstrap/app.php` con `Dotenv::createMutable(...)->safeLoad()` prima di `Application::configure(...)`.
