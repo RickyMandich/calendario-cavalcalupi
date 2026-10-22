@@ -169,6 +169,7 @@
 - [ ] **Fase 27: Deploy fallito per permessi su `storage/app/private/imports`**
   - [x] Causa: la build Docker sul server non legge `storage/app/private/imports` (creata dal container con permessi 0700) -> `permission denied` nel build context.
   - [x] `.dockerignore`: esclusi `storage/app/private`, `storage/app/public`, `storage/logs`, `storage/framework/{cache,sessions,views}`; README.
+  - [x] Secondo errore causato dal `.dockerignore`: `composer dump-autoload` falliva (`Please provide a valid cache path`) perché `storage/framework/views` non esisteva nell'immagine; il `Dockerfile` ora ricrea le cartelle di `storage/` con `mkdir -p`.
   - [ ] Commit e push, poi verificare che il deploy (GitHub Actions) passi e che il sito mostri logo, hamburger e calendario senza errori in console.
   - [ ] Dopo il deploy: `php artisan migrate` (lo fa l'entrypoint/deploy? controllare che la migrazione `2026_10_22_120000_...` sia stata applicata).
 

@@ -22,6 +22,11 @@ WORKDIR /app
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
 COPY . .
+# storage/ runtime è escluso da .dockerignore (permessi 0700 dei file scritti dal container): le cartelle
+# vanno ricreate, altrimenti `artisan package:discover` (post-autoload-dump) fallisce con
+# "Please provide a valid cache path" perché storage/framework/views non esiste.
+RUN mkdir -p storage/app/private storage/app/public storage/logs \
+        storage/framework/cache/data storage/framework/sessions storage/framework/views bootstrap/cache
 RUN composer dump-autoload --optimize --no-dev
 
 # --- Stage 3: icone del sito (favicon, apple-touch, manifest) ---
