@@ -6,6 +6,7 @@ use App\Exceptions\SchedulingException;
 use App\Models\Event;
 use App\Models\Group;
 use App\Services\CalendarScheduler;
+use App\Services\SessionSwapService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,7 +15,7 @@ use Illuminate\View\View;
 
 class EventController extends Controller
 {
-    public function __construct(private CalendarScheduler $scheduler)
+    public function __construct(private CalendarScheduler $scheduler, private SessionSwapService $swaps)
     {
     }
 
@@ -119,12 +120,17 @@ class EventController extends Controller
         $rules = [
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'start_time' => ['required', 'date'],
-            'end_time' => ['required', 'date', 'after:start_time'],
         ];
 
-        if ($user->isStaff() && $event->type === 'session') {
-            $rules['group_id'] = ['required', 'exists:groups,id'];
+        // Giorno e orario si cambiano a mano solo in casi eccezionali (staff);
+        // gli altri usano "Richiedi cambio giorno" dalla pagina della sessione.
+        if ($user->isStaff()) {
+            $rules['start_time'] = ['required', 'date'];
+            $rules['end_time'] = ['required', 'date', 'after:start_time'];
+
+            if ($event->type === 'session') {
+                $rules['group_id'] = ['required', 'exists:groups,id'];
+            }
         }
 
         $validated = $request->validate($rules);
@@ -136,29 +142,45 @@ class EventController extends Controller
             }
         }
 
+        $oldStart = $event->start_time->copy();
+
         try {
             $event = $this->scheduler->updateEvent($event, $validated, $user);
         } catch (SchedulingException $e) {
             $message = $e->getMessage();
             if ($e->reason === 'full') {
-                $message .= ' Puoi richiedere uno scambio dalla pagina dell\'evento.';
+                $message .= ' Per cambiare giorno senza forzare usa «Richiedi cambio giorno» dalla pagina dell\'evento.';
             }
 
             return back()->withErrors([$e->field => $message])->withInput();
+        }
+
+        // Se la sessione ha lasciato un giorno, chi era in attesa di quel posto può passare.
+        if ($event->type === 'session' && $oldStart->toDateString() !== $event->start_time->toDateString()) {
+            $this->swaps->fulfillWaiting($oldStart);
         }
 
         return redirect()->route('events.show', $event)->with('success', 'Evento aggiornato con successo!');
     }
 
     /**
-     * Eliminazione (staff o chi gestisce le sessioni del gruppo).
+     * Annullamento sessione / eliminazione evento (staff o chi gestisce le sessioni del gruppo).
+     * Annullare una sessione libera il posto: le richieste in attesa di quel giorno vengono eseguite.
      */
     public function destroy(Event $event): RedirectResponse
     {
         Gate::authorize('delete-event', $event);
-        $event->delete();
 
-        return redirect()->route('calendar.index')->with('success', 'Evento rimosso con successo.');
+        $isSession = $event->type === 'session';
+        $day = $event->start_time->copy();
+
+        $this->scheduler->withLock(fn () => $event->delete());
+
+        if ($isSession) {
+            $this->swaps->fulfillWaiting($day);
+        }
+
+        return redirect()->route('calendar.index')->with('success', $isSession ? 'Sessione annullata.' : 'Evento rimosso con successo.');
     }
 
     private function authorizeEdit(Event $event): void

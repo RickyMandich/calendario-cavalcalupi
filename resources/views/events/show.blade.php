@@ -54,20 +54,35 @@
 
                 <div class="flex items-center gap-2">
                     @if($canEdit)
-                        <a href="{{ route('events.edit', $event) }}" class="btn-primary">
-                            ✏️ Modifica / Riprogramma
+                        <a href="{{ route('events.edit', $event) }}" class="btn-secondary">
+                            @if(Auth::user()->isStaff())
+                                ✏️ Modifica (anche giorno e orario, casi eccezionali)
+                            @else
+                                ✏️ Modifica titolo e descrizione
+                            @endif
                         </a>
                     @endif
 
                     @can('delete-event', $event)
-                        <form method="POST" action="{{ route('events.destroy', $event) }}" onsubmit="return confirm('Confermi l\'eliminazione definitiva di questo evento?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit"
-                                    class="px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-medium transition-colors">
-                                🗑️ Elimina
-                            </button>
-                        </form>
+                        @if($event->type === 'session')
+                            <form method="POST" action="{{ route('events.destroy', $event) }}" onsubmit="return confirm('Annullare la sessione? Verrà rimossa dal calendario e il posto si libererà.')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit"
+                                        class="px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-medium transition-colors">
+                                    🚫 Annulla sessione
+                                </button>
+                            </form>
+                        @else
+                            <form method="POST" action="{{ route('events.destroy', $event) }}" onsubmit="return confirm('Confermi l\'eliminazione definitiva di questo evento?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit"
+                                        class="px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-medium transition-colors">
+                                    🗑️ Elimina
+                                </button>
+                            </form>
+                        @endif
                     @endcan
                 </div>
             @endauth
@@ -104,24 +119,25 @@
 
         @if($event->swapRequests->isNotEmpty())
             <div class="mt-6 p-3.5 rounded-xl bg-sky-50 border border-sky-200 text-xs text-sky-800">
-                🔁 Scambio richiesto per il {{ $event->swapRequests->first()->target_date->format('d/m/Y') }}
+                🔁 Cambio giorno richiesto per il {{ $event->swapRequests->first()->target_date->format('d/m/Y') }}: in attesa che si liberi un posto
             </div>
         @endif
 
         @auth
             @if($event->type === 'session' && $event->start_time->isFuture() && Auth::user()->can('update-session', $event))
                 <div class="mt-6 p-4 rounded-2xl bg-brand-50 border border-brand-100 space-y-3">
-                    <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-500">Spostamento</h3>
+                    <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-500">Cambio giorno</h3>
                     <p class="text-xs text-gray-600">
-                        Se il giorno desiderato ha posto, usa <a class="text-brand-700 underline" href="{{ route('events.edit', $event) }}">lo spostamento diretto</a>.
-                        Se è pieno, accordatevi con l'altro gruppo e inviate ciascuno una richiesta di scambio: quando combaciano i giorni si scambiano (gli orari restano invariati).
+                        Scegli il nuovo giorno: se c'è posto la sessione si sposta <strong>subito</strong> (l'orario resta lo stesso).
+                        Se il giorno è pieno la richiesta resta in attesa e la sessione si sposterà appena si libera un posto,
+                        oppure quando l'altro gruppo invia la richiesta speculare (scambio). Se invece non giocate quel giorno, usa «Annulla sessione».
                     </p>
                     @if($event->swapRequests->isNotEmpty())
                         @foreach($event->swapRequests as $sr)
                             <form method="POST" action="{{ route('swap-requests.destroy', $sr) }}">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn-secondary">Annulla richiesta di scambio</button>
+                                <button type="submit" class="btn-secondary">Annulla richiesta di cambio giorno</button>
                             </form>
                         @endforeach
                     @else
@@ -131,7 +147,7 @@
                                 <label for="target_date" class="field-label">Giorno desiderato</label>
                                 <input type="date" id="target_date" name="target_date" required class="field">
                             </div>
-                            <button type="submit" class="btn-primary">Richiedi scambio</button>
+                            <button type="submit" class="btn-primary">Richiedi cambio giorno</button>
                         </form>
                     @endif
                 </div>
@@ -210,6 +226,11 @@
                                             @if(!empty($log->new_data))
                                                 @if(!empty($log->new_data['_context']['swap_with_title']))
                                                     <div class="text-[11px] text-sky-700">🔁 Scambio con «{{ $log->new_data['_context']['swap_with_title'] }}» ({{ $log->new_data['_context']['swap_with_group'] ?? '-' }})</div>
+                                                @endif
+                                                @if(($log->new_data['_context']['reason'] ?? null) === 'direct_move')
+                                                    <div class="text-[11px] text-sky-700">📅 Cambio giorno richiesto{{ !empty($log->new_data['_context']['requested_by_name']) ? ' da '.$log->new_data['_context']['requested_by_name'] : '' }}: spostata subito</div>
+                                                @elseif(($log->new_data['_context']['reason'] ?? null) === 'waiting_request')
+                                                    <div class="text-[11px] text-sky-700">📅 Si è liberato un posto: eseguita la richiesta di cambio giorno{{ !empty($log->new_data['_context']['requested_by_name']) ? ' di '.$log->new_data['_context']['requested_by_name'] : '' }}</div>
                                                 @endif
                                                 @foreach(collect($log->new_data)->except('_context') as $field => $newVal)
                                                     @php

@@ -5,8 +5,9 @@
     <div>
         <h1 class="text-3xl font-extrabold text-brand-950 tracking-tight">Richieste di Scambio</h1>
         <p class="text-xs text-gray-500 mt-1 max-w-2xl">
-            Due gruppi che si sono accordati (ad esempio su Telegram) inviano ciascuno una richiesta dalla pagina della propria sessione.
-            Quando le due richieste combaciano, i giorni si scambiano in automatico; orari e durate restano quelli di ciascuna sessione.
+            Richieste di cambio giorno rimaste in attesa perché il giorno richiesto è pieno (se c'è posto la sessione si sposta subito e qui non compare).
+            Una richiesta si esegue in automatico quando si libera un posto in quel giorno, oppure quando l'altro gruppo invia la richiesta speculare (scambio);
+            orari e durate restano quelli di ciascuna sessione.
         </p>
     </div>
 

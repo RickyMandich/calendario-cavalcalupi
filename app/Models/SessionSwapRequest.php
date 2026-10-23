@@ -54,11 +54,15 @@ class SessionSwapRequest extends Model
         return $this->belongsTo(self::class, 'matched_request_id');
     }
 
-    public function markCompleted(self $other): void
+    /**
+     * $other = richiesta speculare (scambio); null quando la richiesta è stata eseguita
+     * perché il giorno aveva un posto libero.
+     */
+    public function markCompleted(?self $other = null): void
     {
         $this->forceFill([
             'status' => 'completed',
-            'matched_request_id' => $other->id,
+            'matched_request_id' => $other?->id,
             'completed_at' => now(),
             'pending_flag' => null,
         ])->save();

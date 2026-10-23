@@ -104,6 +104,8 @@ class SessionSwapTest extends TestCase
     public function test_non_mirror_requests_do_not_match(): void
     {
         $sat = $this->nextWeekday(6);
+        $this->createRoom(1, [6]);
+        $this->makeSession($this->gA, $sat, '21:00', '23:00', 'Riempisabato'); // sabato pieno: la richiesta di B resta in attesa
         $this->service()->request($this->evA, $this->fri, $this->uA);
         $result = $this->service()->request($this->evB, $sat, $this->uB);
 
@@ -123,6 +125,7 @@ class SessionSwapTest extends TestCase
         }
 
         $second = $this->makeSession($this->gA, $this->thu->copy()->addWeek(), '21:00', '23:00', 'Altra A');
+        $this->makeSession($this->gB, $this->fri->copy()->addWeek(), '18:30', '20:00', 'Riempivenerdi'); // pieno: resta in attesa
         $this->service()->request($second, $this->fri->copy()->addWeek(), $this->uA);
         $this->assertSame(2, SessionSwapRequest::pending()->count());
     }
@@ -308,6 +311,6 @@ class SessionSwapTest extends TestCase
             'start_time' => $this->fri->copy()->setTime(21, 0)->format('Y-m-d H:i:s'),
             'end_time' => $this->fri->copy()->setTime(23, 0)->format('Y-m-d H:i:s'),
         ])->assertSessionHasErrors('start_time');
-        $this->assertStringContainsString('scambio', session('errors')->first('start_time'));
+        $this->assertStringContainsString('cambio giorno', session('errors')->first('start_time'));
     }
 }

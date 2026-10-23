@@ -6,6 +6,7 @@ use App\Exceptions\SchedulingException;
 use App\Models\Event;
 use App\Models\SessionSwapRequest;
 use App\Models\User;
+use App\Notifications\SessionMoved;
 use App\Notifications\SessionSwapped;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
@@ -13,9 +14,11 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Gate;
 
 /**
- * Scambio di giorno tra due sessioni di gruppi diversi.
- * Ogni gruppo invia una richiesta; quando le due richieste combaciano "a specchio"
- * i giorni si scambiano in un'unica transazione, mantenendo orario e durata di ciascuna sessione.
+ * Cambio giorno delle sessioni.
+ * Se il giorno richiesto ha un posto libero la sessione si sposta subito. Se è pieno la richiesta
+ * resta in attesa: si esegue quando l'altro gruppo invia la richiesta "a specchio" (scambio, in un'unica
+ * transazione) oppure quando si libera un posto (fulfillWaiting). Orario e durata restano sempre quelli
+ * di ciascuna sessione.
  */
 class SessionSwapService
 {
@@ -29,7 +32,9 @@ class SessionSwapService
     }
 
     /**
-     * @return array{request: SessionSwapRequest, status: string, message: string}  status: pending|completed|conflict
+     * Richiesta di cambio giorno.
+     *
+     * @return array{request: ?SessionSwapRequest, status: string, message: string}  status: moved|pending|completed|conflict
      *
      * @throws SchedulingException
      * @throws AuthorizationException
@@ -61,6 +66,15 @@ class SessionSwapService
                 throw new SchedulingException('Questa sessione ha già una richiesta in corso: annullala prima di inviarne un\'altra.', 'target_date');
             }
 
+            if ($this->scheduler->capacityOn($target) === 0) {
+                throw new SchedulingException('Nessuna stanza disponibile in quel giorno: scegline un altro.', 'target_date', 'no_rooms');
+            }
+
+            // C'è posto: nessuna attesa, la sessione si sposta subito (orario e durata invariati).
+            if ($this->scheduler->freeSlotsOn($target) > 0) {
+                return $this->moveDirectly($event, $target, $by);
+            }
+
             $swapRequest = SessionSwapRequest::create([
                 'event_id' => $event->id,
                 'group_id' => $event->group_id,
@@ -81,11 +95,126 @@ class SessionSwapService
             ));
         }
 
+        // Il giorno lasciato libero può servire a chi era in attesa.
+        if (isset($outcome['freed_day'])) {
+            $this->fulfillWaiting($outcome['freed_day']);
+        }
+
         return [
             'request' => $outcome['request'],
             'status' => $outcome['status'],
             'message' => $outcome['message'],
         ];
+    }
+
+    /**
+     * Sposta subito la sessione nel giorno richiesto (che ha un posto libero), tenendo orario e durata.
+     * Da chiamare dentro withLock.
+     *
+     * @throws SchedulingException
+     */
+    protected function moveDirectly(Event $event, Carbon $target, User $by): array
+    {
+        $oldStart = $event->start_time->copy();
+        $duration = abs($event->end_time->getTimestamp() - $event->start_time->getTimestamp());
+        $newStart = $target->copy()->setTimeFrom($event->start_time);
+        $newEnd = $newStart->copy()->addSeconds($duration);
+
+        $event->logContext = ['reason' => 'direct_move', 'requested_by_name' => $by->name];
+        try {
+            $this->scheduler->updateEvent($event, ['start_time' => $newStart, 'end_time' => $newEnd], $by);
+        } catch (SchedulingException $e) {
+            throw new SchedulingException($e->getMessage(), 'target_date', $e->reason);
+        } finally {
+            $event->logContext = null;
+        }
+
+        return [
+            'request' => null,
+            'status' => 'moved',
+            'message' => 'Sessione spostata al '.$newStart->format('d/m/Y').' (orario invariato).',
+            'freed_day' => $oldStart,
+        ];
+    }
+
+    /**
+     * Esegue le richieste in attesa che puntano a giorni in cui si è liberato un posto
+     * (sessione annullata o spostata). Più vecchia prima; ogni spostamento libera a sua volta
+     * il giorno di partenza, che viene riesaminato. Va chiamato dopo il commit dell'operazione
+     * che ha liberato il posto.
+     */
+    public function fulfillWaiting(CarbonInterface $day): void
+    {
+        $notify = [];
+
+        $this->scheduler->withLock(function () use ($day, &$notify) {
+            $queue = [Carbon::parse($day->toDateString(), $this->tz())->startOfDay()];
+
+            while ($queue) {
+                $this->processFreedDay(array_shift($queue), $notify, $queue);
+            }
+        });
+
+        foreach ($notify as $n) {
+            $n['user']->notify(new SessionMoved($n['event'], $n['old_start'], $n['new_start']));
+        }
+    }
+
+    protected function processFreedDay(Carbon $date, array &$notify, array &$queue): void
+    {
+        if ($date < now($this->tz())->startOfDay()) {
+            return;
+        }
+
+        $candidates = SessionSwapRequest::pending()
+            ->whereDate('target_date', $date->toDateString())
+            ->with(['event.group', 'requester'])
+            ->orderBy('id')
+            ->get();
+
+        foreach ($candidates as $r) {
+            if ($this->scheduler->freeSlotsOn($date) <= 0) {
+                return;
+            }
+
+            $event = $r->event ? Event::with('group')->whereKey($r->event_id)->lockForUpdate()->first() : null;
+            if (! $event
+                || $event->type !== 'session'
+                || ! $event->group?->is_active
+                || $event->start_time->toDateString() !== $r->from_date->toDateString()
+                || $event->start_time < now($this->tz())) {
+                continue;
+            }
+
+            $duration = abs($event->end_time->getTimestamp() - $event->start_time->getTimestamp());
+            $newStart = $date->copy()->setTimeFrom($event->start_time);
+            $newEnd = $newStart->copy()->addSeconds($duration);
+
+            if ($this->scheduler->overlapping($newStart, $newEnd, ['assembly'], $event)) {
+                continue;
+            }
+
+            $oldStart = $event->start_time->copy();
+
+            // Prima si marca completata (così l'observer non la annulla come "session_changed")
+            $r->markCompleted();
+
+            $event->logContext = [
+                'reason' => 'waiting_request',
+                'requested_by_name' => $r->requester?->name,
+                'request_ids' => [$r->id],
+            ];
+            $event->start_time = $newStart;
+            $event->end_time = $newEnd;
+            $event->save();
+            $event->logContext = null;
+
+            if ($r->requester) {
+                $notify[] = ['user' => $r->requester, 'event' => $event, 'old_start' => $oldStart, 'new_start' => $newStart];
+            }
+
+            $queue[] = Carbon::parse($oldStart->toDateString(), $this->tz())->startOfDay();
+        }
     }
 
     /**
@@ -137,7 +266,7 @@ class SessionSwapService
             return [
                 'request' => $r,
                 'status' => 'pending',
-                'message' => "Richiesta registrata: in attesa che l'altro gruppo invii la richiesta speculare.",
+                'message' => 'Il giorno richiesto è pieno: la richiesta resta in attesa. La sessione si sposterà appena si libera un posto o se l\'altro gruppo invia la richiesta speculare (scambio).',
             ];
         }
 

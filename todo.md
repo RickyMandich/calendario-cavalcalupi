@@ -195,3 +195,12 @@
   - [x] Test `ProfileTest` e `UserManagementActionsTest`; README.
   - [ ] Lanciare `php artisan migrate` (dev e produzione) e `php artisan test` (non eseguiti: scritti senza poter lanciare PHP).
   - [ ] Provare nel browser: modifica profilo, cambio email con mail reale (Resend), rigenerazione token + re-iscrizione calendario, checkbox Confermato, Reinvia mail, eliminazione di un utente di prova con sessioni create.
+
+- [ ] **Fase 30: Cambio giorno immediato e annullamento sessione** (`implementationPlan-V-cambioGiornoImmediato.md`; modifica la Fase 18)
+  - [x] `SessionSwapRequest::markCompleted(?self $other = null)`; `SessionSwapService::request()` sposta subito se il giorno ha un posto libero (`moveDirectly`, log `direct_move`), rifiuta i giorni senza stanze, altrimenti richiesta pendente + abbinamento a specchio.
+  - [x] `SessionSwapService::fulfillWaiting()`: alla liberazione di un posto (sessione annullata o spostata) esegue le richieste in attesa, più vecchia prima, con cascata; salta le richieste in conflitto con assemblee; notifica email `SessionMoved`.
+  - [x] `EventController`: data/ora modificabili a mano solo da CD/Admin (i responsabili cambiano solo titolo e descrizione); `update()` e `destroy()` richiamano `fulfillWaiting`; messaggio «Sessione annullata.».
+  - [x] Viste `events/show` (sezione «Cambio giorno», «Annulla sessione», log `direct_move`/`waiting_request`), `events/edit` (date solo staff), `swap-requests/index` (testi).
+  - [x] Test `DayChangeRequestTest` (spostamento immediato, attesa, rilascio posto, cascata, permessi del form); README aggiornato.
+  - [ ] Lanciare `php artisan test` (non eseguito: scritto senza poter lanciare PHP), in particolare `SessionSwapTest` e `DayChangeRequestTest`.
+  - [ ] Provare nel browser: richiesta su giorno libero (sposta subito), su giorno pieno (resta in attesa), poi annullare la sessione che occupa il posto e controllare lo spostamento + email `SessionMoved`.

@@ -47,6 +47,16 @@
                 </div>
             @endif
 
+            @if(! $isStaff)
+                <div class="text-xs p-3 rounded-xl bg-brand-50 border border-brand-100 text-gray-600">
+                    📅 {{ $event->start_time->format('d/m/Y H:i') }} &ndash; {{ $event->end_time->format('H:i') }}.
+                    Per cambiare giorno usa <a class="text-brand-700 underline" href="{{ route('events.show', $event) }}">«Richiedi cambio giorno»</a> nella pagina della sessione: se c'è posto si sposta subito.
+                </div>
+            @else
+            <div class="text-xs p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800">
+                Cambiare giorno o orario a mano è pensato per i casi eccezionali: di norma i gruppi usano «Richiedi cambio giorno».
+            </div>
+
             <!-- Date e Orari -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -65,6 +75,7 @@
             </div>
 
             <div id="availabilityBox" data-url="{{ route('calendar.availability') }}" class="text-xs p-3 rounded-xl bg-brand-50 border border-brand-100 text-gray-600 hidden"></div>
+            @endif
 
             <!-- Descrizione -->
             <div>
