@@ -107,12 +107,12 @@
   - [x] README.
   - [ ] Prova di concorrenza su MariaDB (manuale).
 
-- [ ] **Fase 18: Spostamento diretto e scambio sessioni** (`implementationPlan-V-spostamentoDirettoESwap.md`; il flusso di cambio giorno è stato poi modificato dalla Fase 30)
+- [x] **Fase 18: Spostamento diretto e scambio sessioni** (`implementationPlan-V-spostamentoDirettoESwap.md`; il flusso di cambio giorno è stato poi modificato dalla Fase 30)
   - [x] Tabella `session_swap_requests` (una pendente per sessione); `SessionSwapService` (richiesta, abbinamento a specchio, annullamento).
   - [x] Scambio atomico con orari invariati, log con `_context`, notifica email `SessionSwapped`.
   - [x] Viste (show, elenco richieste), regola "passato", test (`SessionSwapTest`).
   - [x] README.
-  - [ ] Configurazione `MAIL_*` / Resend in produzione (vedi Fase 28).
+  - [x] Configurazione `MAIL_*` / Resend in produzione: funzionante (verificato 2026-11-04, vedi Fase 28).
 
 - [ ] **Fase 19: Modalità scura** (`implementationPlan-V-modalitaScura.md`)
   - [x] Rimappatura scale colore sotto `.dark`, variabili semantiche, script anti-lampo e toggle sistema/chiaro/scuro.
@@ -140,17 +140,17 @@
   - [x] Pagina Utenti: riquadri arrotondati con bordino, `.badge` definita.
   - [x] `php artisan test`: 103 test verdi (394 asserzioni) *(conteggio di allora: le fasi 24-30 hanno aggiunto test)*.
   - [x] Nginx: asset serviti da `/var/www/build` (fix `read-only file system` in produzione).
-  - [ ] Ricostruire/riavviare in dev e produzione (`dok.dev.up`, `git pull` + `docker compose up -d --build` sul server) e verificare `/build/...`, `/favicon.ico`.
+  - [x] Ricostruire/riavviare in dev e produzione (il deploy lo fa a ogni push) e verificare `/build/...`, `/favicon.ico` (verificato 2026-11-04).
   - [ ] Provare con il **file Excel reale** (formato cella sistema/campagna, bande unite).
 
-- [ ] **Fase 23: `.env-overrides` e versionamento (allineato a unlimiteddb)**
+- [x] **Fase 23: `.env-overrides` e versionamento (allineato a unlimiteddb)**
   - [x] Creare `.env-overrides` (tracciato in Git) con `APP_VERSION_TYPE/PRIMARY/SECONDARY/TERTIARY` e `APP_VERSION` (parte da `1.0.0`; oggi `1.0.11`).
   - [x] Caricarlo in `bootstrap/app.php` con `Dotenv::createMutable(...)->safeLoad()` prima di `Application::configure(...)`.
   - [x] Aggiungere `bash/all.sh` (incremento versione) e `bash/cmt.sh` (commit con versione + push).
   - [x] Documentare nel README (sezione Configurazione Environment).
   - [x] Verificato in locale: `env('APP_VERSION')` e `bash/all.sh` funzionano.
   - [x] Esporre la versione in `config('app.version')` (`config/app.php`) e mostrarla nel footer di `layouts/app.blade.php`.
-  - [ ] Dopo il primo deploy: controllare la versione nel footer in produzione.
+  - [x] Versione nel footer in produzione controllata (2026-11-04).
 
 - [ ] **Fase 24: modello Excel scaricabile nella pagina di import**
   - [x] Creare il modello generico (ottobre 2026 + foglio "Istruzioni") e linkarlo in `admin/import/calendar.blade.php` con `asset('modello-importazione-calendario.xlsx')`.
@@ -161,16 +161,16 @@
   - [x] `php artisan test` del 2026-11-04: 165 test verdi (683 asserzioni), compreso `CalendarImportTest`.
   - [ ] Provare: scaricare il modello dalla pagina, ricaricarlo nell'import (anno stagione 2026) e controllare che l'anteprima lo legga (gruppi di esempio, bande, errori solo per stanze/capienza).
 
-- [ ] **Fase 25: Fix logo 404 e navbar mobile** (`implementationPlan-V-fixLogoENavbarMobile.md`; versione 1.0.6)
+- [x] **Fase 25: Fix logo 404 e navbar mobile** (`implementationPlan-V-fixLogoENavbarMobile.md`; versione 1.0.6)
   - [x] Causa del 404: location nginx `= /icon.svg` con `try_files /public/icon.svg` (percorso doppio `public/public`); rimossa.
   - [x] Logo (header, login, registrazione) e favicon dai file generati in `build/icons` (niente più `icon.svg` diretto).
   - [x] Menu a comparsa mobile (hamburger, `nav.js`), link in `layouts/partials/nav-links.blade.php`, account in fondo al menu sotto `sm`.
   - [x] Test `NavigationTest`, README.
   - [x] `php artisan test` verde (2026-11-04).
   - [x] `npm run build`: eseguito a ogni build Docker (stage del `Dockerfile`), non serve lanciarlo a mano.
-  - [ ] Provare nel browser a 375px; in produzione verificare `/build/icons/android-chrome-192x192.png` (200).
+  - [x] Provato nel browser a 375px; in produzione `/build/icons/android-chrome-192x192.png` risponde 200 (2026-11-04).
 
-- [ ] **Fase 26: Verifica email e restrizioni per utenti non verificati** (`implementationPlan-V-verificaEmail.md`; versione 1.0.6)
+- [x] **Fase 26: Verifica email e restrizioni per utenti non verificati** (`implementationPlan-V-verificaEmail.md`; versione 1.0.6)
   - [x] `User implements MustVerifyEmail`, `EmailVerificationController`, rotte `verification.*`, email in italiano, invio alla registrazione (in `try/catch`).
   - [x] Non verificato: solo ruolo Membro (`UserController`), niente gruppi (`Group::addUser`, elenco in `admin/groups`), niente feed ICS (403 + modale nascosto).
   - [x] Banner nel layout, pagina `auth/verify-email`, badge nella pagina Utenti, `app:make-admin` e `DemoSeeder` verificano l'email.
@@ -178,24 +178,24 @@
   - [x] Test `EmailVerificationTest`; `AuthorizationGatesTest`, `EventAndGroupLogicTest`, `IcsCalendarControllerTest` passati a `User::factory()`; README.
   - [x] `php artisan test` verde; migrazione `2026_10_22_120000_...` applicata in dev e in produzione.
   - [x] Utenti esistenti non verificati in produzione: 0 (2026-11-04).
-  - [ ] Provare in produzione registrazione + link di verifica con una mail reale (vedi Fase 28).
+  - [x] Registrazione + link di verifica provati in produzione con una mail reale: funziona (2026-11-04).
 
-- [ ] **Fase 27: Deploy fallito per permessi su `storage/app/private/imports`** (versioni 1.0.7 e 1.0.8)
+- [x] **Fase 27: Deploy fallito per permessi su `storage/app/private/imports`** (versioni 1.0.7 e 1.0.8)
   - [x] Causa: la build Docker sul server non legge `storage/app/private/imports` (creata dal container con permessi 0700) -> `permission denied` nel build context.
   - [x] `.dockerignore`: esclusi `storage/app/private`, `storage/app/public`, `storage/logs`, `storage/framework/{cache,sessions,views}`; README.
   - [x] Secondo errore causato dal `.dockerignore`: `composer dump-autoload` falliva (`Please provide a valid cache path`) perché `storage/framework/views` non esisteva nell'immagine; il `Dockerfile` ora ricrea le cartelle di `storage/` con `mkdir -p`.
   - [x] Commit e push (1.0.7 "fix deploy", 1.0.8 "still fix deploy").
   - [x] Deploy funzionante: in produzione risultano applicate tutte le migrazioni fino a `2026_10_22_200000_...` (2026-11-04).
   - [x] Migrazioni in produzione: `/home/ubuntu/scripts/deploy.sh` esegue `migrate --force` a ogni deploy (l'`entrypoint.sh` no).
-  - [ ] Controllo visivo in produzione: logo, hamburger e calendario senza errori in console.
+  - [x] Controllo visivo in produzione: logo, hamburger e calendario senza errori in console (2026-11-04).
 
-- [ ] **Fase 28: Mailer Resend in produzione (`Class "Resend" not found`)** (versione 1.0.9)
+- [x] **Fase 28: Mailer Resend in produzione (`Class "Resend" not found`)** (versione 1.0.9)
   - [x] Causa: `MAIL_MAILER=resend` ma il pacchetto `resend/resend-php` non era in `composer.json`/`composer.lock` (la registrazione non dà errore grazie al `try/catch`, l'email non parte).
   - [x] README e `.env.example` documentano Resend.
   - [x] `composer require resend/resend-php`: il pacchetto (`^1.17`) è in `composer.json`, committato con la 1.0.9.
   - [x] `composer.lock` contiene `resend/resend-php` (verificato 2026-11-04).
   - [x] Pacchetto presente nell'immagine di produzione (`vendor/resend`, verificato 2026-11-04).
-  - [ ] Verificare in produzione: `RESEND_API_KEY` nel `.env`, `MAIL_FROM_ADDRESS` su dominio verificato in Resend, registrazione di prova e link di verifica.
+  - [x] Verificato in produzione: Resend configurato, registrazione di prova e link di verifica funzionanti (2026-11-04).
 
 - [ ] **Fase 29: Profilo utente e gestione utenti** (`implementationPlan-V-profiloEGestioneUtenti.md`; versione 1.0.10)
   - [x] Migrazione `2026_10_22_200000_make_user_references_nullable_on_user_delete`: `events.created_by`, `event_logs.user_id`, `session_swap_requests.requested_by` da `cascadeOnDelete` a `nullOnDelete` (eliminare un utente non cancella più le sue sessioni).
@@ -223,8 +223,8 @@
   - [x] Commenti nel codice: `routes/web.php` (import solo `.xlsx`/`.xls`) e docblock duplicato in `app/Models/User.php`.
   - [x] Commit (`bash/all.sh`).
 
-- [ ] **Fase 32: Esiti delle verifiche del 2026-11-04**
+- [x] **Fase 32: Esiti delle verifiche del 2026-11-04**
   - [x] `UserRolesTest`: `/** @test */` sostituito da `#[Test]` (eliminati i 6 warning di deprecazione PHPUnit 12).
   - [x] README: il deploy esegue `migrate --force`; nell'immagine di produzione non ci sono `composer` ed `npm`.
-  - [ ] Rilanciare `php artisan test --filter=UserRolesTest` (modificato senza poterlo eseguire) e committare con le altre modifiche.
-  - [ ] **Sicurezza**: il token del bot Telegram scritto in chiaro in `/home/ubuntu/scripts/deploy.sh` è stato incollato in chat. Rigenerarlo con BotFather (`/revoke`) e spostarlo in una variabile d'ambiente o in un file non versionato letto dallo script.
+  - [x] `UserRolesTest` rilanciato (verde) e modifiche committate (2026-11-04).
+  - [x] **Sicurezza**: il token del bot Telegram scritto in chiaro in `/home/ubuntu/scripts/deploy.sh` è stato incollato in chat. Rigenerarlo con BotFather (`/revoke`) e spostarlo in una variabile d'ambiente o in un file non versionato letto dallo script.
