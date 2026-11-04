@@ -1,3 +1,9 @@
+> **Documento storico (brief originale).** Lo stato attuale è descritto in `README.md` e `todo.md`. Regole di questo brief già superate dal codice:
+> - "ogni membro di un gruppo può modificare quando quel gruppo gioca" → serve il permesso **Responsabile** per gruppo (`group_user.can_manage_sessions`); CD e Admin possono sempre. Data e orario non si modificano a mano: si usa «Richiedi cambio giorno» (spostamento immediato se c'è posto, altrimenti richiesta in attesa).
+> - "qui non servono controlli" → esistono stanze con capienza per giorno, blocco delle assemblee e scambio tra gruppi.
+> - La registrazione è pubblica (solo `Membro`, senza gruppi); l'assegnazione ai gruppi e dei ruoli resta a CD/Admin. Per essere assegnati a un gruppo e avere il feed ICS serve l'email verificata.
+> - "cavalcalupi di {username}": il feed ICS personale si intitola `Calendario Cavalcalupi - {nome utente}`.
+
 # obbiettivo
 gestire il calendario di cavalcalupi, un'associazione di giochi di ruolo di cui faccio parte, che vuole poter fare in modo di tenere traccia in tempo reale di quali gruppi giocano in che momento. questa esigenza c'è perchè attualmente in sede non c'è abbastanza spazio per permettere a tutti i gruppi di giocare contemporaneamente per cui giochiamo alternati giovedì e venerdì.
 # vincoli

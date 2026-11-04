@@ -1,3 +1,5 @@
+> **Documento storico (analisi del 2026-10-19).** Descrive i requisiti iniziali; non è aggiornato. Per lo stato attuale vedere `README.md` e `todo.md`. Punti superati: i membri non modificano più liberamente le sessioni (serve il permesso Responsabile per gruppo), si sono aggiunti stanze/capienza, assemblee bloccanti, cambio giorno e scambi, verifica email, profilo, import da Excel e modalità scura.
+
 # Analisi di Progetto: Sistema Calendario Cavalcalupi
 
 ## 1. Obiettivo del Progetto

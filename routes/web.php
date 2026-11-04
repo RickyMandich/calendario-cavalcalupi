@@ -96,7 +96,7 @@ Route::middleware('auth')->group(function () {
         Route::delete('/rooms/{room}', [RoomController::class, 'destroy'])->name('rooms.destroy');
     });
 
-    // Importazione calendario da Excel/CSV (Admin & CD)
+    // Importazione calendario dal foglio Excel mensile, solo .xlsx/.xls (Admin & CD)
     Route::prefix('admin/import/calendar')->name('admin.import.')->middleware('can:import-calendar')->group(function () {
         Route::get('/', [CalendarImportController::class, 'create'])->name('create');
         Route::post('/', [CalendarImportController::class, 'store'])->name('store');

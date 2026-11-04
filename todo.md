@@ -1,5 +1,7 @@
 # TODO List - Calendario Cavalcalupi
 
+> Stato allineato al codice il 2026-11-01 (versione `1.0.11`, ultimo commit 2026-10-23). `[x]` = fatto e presente nel codice/repository. Restano aperte le voci che richiedono di eseguire `php artisan test` / `migrate` / `npm run build`, di provare il sito nel browser o di verificare la produzione (non verificabili leggendo il codice).
+
 - [x] **Fase 1: Setup Progetto & Pacchetti**
   - [x] Installare `spatie/laravel-permission` e pubblicare le migrazioni.
   - [x] Installare `opcodesio/log-viewer:^3.24`.
@@ -49,17 +51,17 @@
 - [x] **Fase 9: Icone del sito generate da SVG (Docker)**
   - [x] Creare l'SVG sorgente `public/icon.svg`.
   - [x] Creare `docker/icons/generate-icons.sh` (favicon, apple-touch, android-chrome, `site.webmanifest`).
-  - [x] Aggiungere lo stage `icon-builder` al `Dockerfile` e consegnare le icone in `/opt/build-seed/icons` (-> `/build/icons/*`).
+  - [x] Aggiungere lo stage `icon-builder` al `Dockerfile` e consegnare le icone in `/opt/build-seed/icons` (-> `/build/icons/*`). *(Il percorso è poi diventato `/opt/build-assets/icons`, vedi Fase 10.)*
   - [x] Servire `/favicon.ico` da nginx con la favicon generata.
-  - [x] Creare `layouts/favicons.blade.php` e includerlo in `layouts/app.blade.php`; usare `icon.svg` come logo.
+  - [x] Creare `layouts/favicons.blade.php` e includerlo in `layouts/app.blade.php`; usare `icon.svg` come logo. *(Dalla Fase 25 il logo usa i file generati in `build/icons`, non più `icon.svg`.)*
   - [x] Documentare le icone nel README.
-  - [x] Verificare dopo il primo build Docker: `/build/icons/favicon.ico`, `/build/icons/site.webmanifest` e `/icon.svg` rispondono 200.
+  - [x] Verificare dopo il primo build Docker: `/build/icons/favicon.ico`, `/build/icons/site.webmanifest` e `/icon.svg` rispondono 200. *(`/icon.svg` non è più servito da nginx dalla Fase 25.)*
 
 - [x] **Fase 10: Allineamento Docker Compose a unlimiteddb**
   - [x] Allineare `docker-compose.yml` (immagine `calendario-cavalcalupi:prod` condivisa da app e worker, asset su `public/build` in nginx).
   - [x] Creare `docker-compose.dev.yml` e `docker/mysql/init.dev.sql` (subnet `172.25.0.0/24`, nginx su 8000, DB su 3307).
   - [x] Allineare `Dockerfile` e `docker/entrypoint.sh` (`/opt/build-assets`, copia anche in `public/build`).
-  - [x] Allineare `docker/nginx/default.conf` (rimossa location `/build/`, favicon con `try_files`).
+  - [x] Allineare `docker/nginx/default.conf` (rimossa location `/build/`, favicon con `try_files`). *(Dalla Fase 22 la location `/build/` esiste di nuovo, con `alias /var/www/build/`.)*
   - [x] Aggiungere `schedule:work` a `docker/supervisor/worker.conf` (necessario per `app:deactivate-groups`).
   - [x] Aggiornare `.dockerignore` (`public/build`, `public/hot`) e README (sezione Docker).
   - [x] Provare `docker compose -f docker-compose.dev.yml up -d --build` e verificare `http://localhost:8000`.
@@ -75,56 +77,56 @@
   - [x] Test `test_feed_exports_times_in_rome_timezone_regardless_of_php_default_timezone`.
   - [x] Dopo il deploy: verificare su Google Calendar (anche per le sessioni già create) e controllare `config('app.timezone')` sul server.
 
-> Piani di implementazione per le modifiche di `analisi-finale-modifiche.md` (ordine consigliato). Ogni piano, a lavoro finito, va rinominato `implementationPlan-V-*.md`.
+> Piani di implementazione per le modifiche di `analisi-finale-modifiche.md` (ordine consigliato). Tutti i piani eseguiti sono stati rinominati `implementationPlan-V-*.md` (restano nella radice come storico).
 > Le fasi 14-21 sono state verificate/completate nel codice il 2026-10-21; restano le verifiche manuali indicate (Docker, MariaDB, browser).
 
-- [x] **Fase 13: Verifica stato attuale** (`implementationPlan-verificaStatoAttuale.md`)
+- [x] **Fase 13: Verifica stato attuale** (`implementationPlan-V-verificaStatoAttuale.md`)
   - [x] Baseline test e git pulito; verifiche Docker/icone (fasi 9-10) e post-deploy (fasi 11-12); controllo account demo e `MAIL_*` in produzione.
 
-- [ ] **Fase 14: Sicurezza registrazione e quick-login (P0)** (`implementationPlan-sicurezzaRegistrazioneEQuickLogin.md`)
+- [ ] **Fase 14: Sicurezza registrazione e quick-login (P0)** (`implementationPlan-V-sicurezzaRegistrazioneEQuickLogin.md`)
   - [x] Separare `RoleSeeder` (solo ruoli) da `DemoSeeder` (solo locale); `DatabaseSeeder` aggiornato.
   - [x] Quick-login registrato solo con `APP_ENV=local`; pulsanti demo nascosti altrove.
   - [x] Throttle su login/registrazione; `ics_token` fuori da `$fillable`; test di non-regressione (`RegistrationSecurityTest`).
   - [ ] Pulizia account demo in produzione (senza perdere eventi: cascade) e README (operazione manuale in produzione).
 
-- [x] **Fase 15: Gestione ruoli da interfaccia** (`implementationPlan-gestioneRuoliUtenti.md`)
+- [x] **Fase 15: Gestione ruoli da interfaccia** (`implementationPlan-V-gestioneRuoliUtenti.md`)
   - [x] `User::isStaff()`, Gate `manage-users`, comando `app:make-admin`.
   - [x] Pagina Utenti (ricerca, cambio ruolo, ultimo Admin protetto, log) + link nel layout; test (`UserRolesTest`, `MakeAdminCommandTest`).
   - [x] README aggiornato.
 
-- [x] **Fase 16: Permesso gestione sessioni per gruppo** (`implementationPlan-permessoGestioneSessioni.md`)
+- [x] **Fase 16: Permesso gestione sessioni per gruppo** (`implementationPlan-V-permessoGestioneSessioni.md`)
   - [x] Migrazione `group_user.can_manage_sessions`; relazioni e metodi su `User`/`Group`.
   - [x] Gate `update-session`, `manage-group-sessions`, `delete-event`; `EventController` riscritto (niente più eliminazione per `created_by`).
   - [x] Interruttore "Responsabile" in `admin/groups`; test (`SessionManagementPermissionTest`).
-  - [x] README aggiornato (`situazione-di-partenza.md` da rivedere a mano).
+  - [x] README aggiornato; `situazione-di-partenza.md` (brief originale) resta com'è, con un avviso in testa che indica le regole superate.
 
-- [ ] **Fase 17: Stanze, capienza e regole del calendario** (`implementationPlan-stanzeERegoleCalendario.md`)
+- [ ] **Fase 17: Stanze, capienza e regole del calendario** (`implementationPlan-V-stanzeERegoleCalendario.md`)
   - [x] Migrazioni e modelli `rooms`/`room_weekday`; pagina Stanze (`RoomController`); `SchedulingException`.
   - [x] `CalendarScheduler` (capienza, slot, assemblee per sovrapposizione oraria, lock) e integrazione in `EventController`.
   - [x] Endpoint pubblico `/calendar/availability`; suggerimento disponibilità nei form; test (`SchedulerRulesTest`, `RoomsAndAvailabilityTest`).
   - [x] README.
   - [ ] Prova di concorrenza su MariaDB (manuale).
 
-- [ ] **Fase 18: Spostamento diretto e scambio sessioni** (`implementationPlan-spostamentoDirettoESwap.md`)
+- [ ] **Fase 18: Spostamento diretto e scambio sessioni** (`implementationPlan-V-spostamentoDirettoESwap.md`; il flusso di cambio giorno è stato poi modificato dalla Fase 30)
   - [x] Tabella `session_swap_requests` (una pendente per sessione); `SessionSwapService` (richiesta, abbinamento a specchio, annullamento).
   - [x] Scambio atomico con orari invariati, log con `_context`, notifica email `SessionSwapped`.
   - [x] Viste (show, elenco richieste), regola "passato", test (`SessionSwapTest`).
   - [x] README.
-  - [ ] Configurazione `MAIL_*` in produzione.
+  - [ ] Configurazione `MAIL_*` / Resend in produzione (vedi Fase 28).
 
-- [ ] **Fase 19: Modalità scura** (`implementationPlan-modalitaScura.md`)
+- [ ] **Fase 19: Modalità scura** (`implementationPlan-V-modalitaScura.md`)
   - [x] Rimappatura scale colore sotto `.dark`, variabili semantiche, script anti-lampo e toggle sistema/chiaro/scuro.
   - [x] Overlay modali e footer su variabili semantiche; test `ThemeToggleTest`.
   - [x] README.
   - [ ] Checklist visiva e contrasto nel browser (viste auth, eventi, utenti, input date).
 
-- [ ] **Fase 20: Calendario visuale (FullCalendar)** (`implementationPlan-calendarioVisuale.md`)
+- [ ] **Fase 20: Calendario visuale (FullCalendar)** (`implementationPlan-V-calendarioVisuale.md`)
   - [x] Dipendenze npm + entry Vite; feed JSON `/calendar/events`; vista elenco `?view=list`.
   - [x] Badge capienza/assemblea per giorno, modale di dettaglio, stile adattivo al tema; test (`CalendarEventsFeedTest`).
   - [x] README.
   - [ ] Verifica visiva nel browser (mobile incluso).
 
-- [ ] **Fase 21: Importazione calendario da Excel/CSV** (`implementationPlan-importazioneCalendarioExcel.md`)
+- [ ] **Fase 21: Importazione calendario da Excel** (`implementationPlan-V-importazioneCalendarioExcel.md`; nata come "Excel/CSV", riscritta nella Fase 22: oggi accetta solo `.xlsx`/`.xls`)
   - [x] Parser, servizio con anteprima + commit tutto-o-niente (stesse regole del form), controller e viste, modello scaricabile, pulizia file temporanei.
   - [x] Test scritti (`CalendarImportTest`); `Dockerfile` (stage composer) con `gd` e `zip`.
   - [x] Installare `phpoffice/phpspreadsheet` (richiede `ext-gd`; in locale `--ignore-platform-req=ext-gd`) e far passare i test (97 test verdi, build Docker ok, migrazione `session_swap_requests` applicata).
@@ -134,30 +136,39 @@
 - [ ] **Fase 22: Import dal foglio mensile reale** (`implementationPlan-V-importazioneCalendarioFoglioMensile.md`)
   - [x] Parser su layout a griglia (mese, etichette `Giovedì 3`, tavoli a 2 righe, bande su celle unite anche su due giorni, cambio mese).
   - [x] Servizio: anno di stagione, controllo giorno della settimana, orari 21:30–00:00, sistema nella descrizione, select gruppi (anche «crea nuovo») e bande (associativo/assemblea/ignora), commit tutto-o-niente.
-  - [x] Controller, vista e test riscritti; rimosso il modello scaricabile; titolo del feed senza ripetizione del nome gruppo.
+  - [x] Controller, vista e test riscritti; rimosso il modello scaricabile (poi reintrodotto nella Fase 24); titolo del feed senza ripetizione del nome gruppo.
   - [x] Pagina Utenti: riquadri arrotondati con bordino, `.badge` definita.
-  - [x] `php artisan test`: 103 test verdi (394 asserzioni).
+  - [x] `php artisan test`: 103 test verdi (394 asserzioni) *(conteggio di allora: le fasi 24-30 hanno aggiunto test)*.
   - [x] Nginx: asset serviti da `/var/www/build` (fix `read-only file system` in produzione).
   - [ ] Ricostruire/riavviare in dev e produzione (`dok.dev.up`, `git pull` + `docker compose up -d --build` sul server) e verificare `/build/...`, `/favicon.ico`.
   - [ ] Provare con il **file Excel reale** (formato cella sistema/campagna, bande unite).
+
+- [ ] **Fase 23: `.env-overrides` e versionamento (allineato a unlimiteddb)**
+  - [x] Creare `.env-overrides` (tracciato in Git) con `APP_VERSION_TYPE/PRIMARY/SECONDARY/TERTIARY` e `APP_VERSION` (parte da `1.0.0`; oggi `1.0.11`).
+  - [x] Caricarlo in `bootstrap/app.php` con `Dotenv::createMutable(...)->safeLoad()` prima di `Application::configure(...)`.
+  - [x] Aggiungere `bash/all.sh` (incremento versione) e `bash/cmt.sh` (commit con versione + push).
+  - [x] Documentare nel README (sezione Configurazione Environment).
+  - [x] Verificato in locale: `env('APP_VERSION')` e `bash/all.sh` funzionano.
+  - [x] Esporre la versione in `config('app.version')` (`config/app.php`) e mostrarla nel footer di `layouts/app.blade.php`.
+  - [ ] Dopo il primo deploy: controllare la versione nel footer in produzione.
 
 - [ ] **Fase 24: modello Excel scaricabile nella pagina di import**
   - [x] Creare il modello generico (ottobre 2026 + foglio "Istruzioni") e linkarlo in `admin/import/calendar.blade.php` con `asset('modello-importazione-calendario.xlsx')`.
   - [x] Documentare nel README (sezione Import calendario).
   - [x] Modello rivisto: righe vuote tra le settimane, sistema e gruppo in due celle sovrapposte, max 3 tavoli giovedì e 5 venerdì, "Gioco libero" solo sul giorno saltato.
   - [x] `CalendarImportParser`: legge anche sistema + gruppo su due righe (riga sotto la serata); test `test_system_and_group_in_two_stacked_cells_are_read_like_one_cell`.
+  - [x] Copiare il file in `public/modello-importazione-calendario.xlsx` (presente nel repository, committato con la 1.0.5).
   - [ ] Lanciare `php artisan test --filter=CalendarImportTest` (il test nuovo non è stato eseguito).
-  - [ ] Copiare il file in `public/modello-importazione-calendario.xlsx` (il link dà 404 finché il file non c'è) e fare commit.
   - [ ] Provare: scaricare il modello dalla pagina, ricaricarlo nell'import (anno stagione 2026) e controllare che l'anteprima lo legga (gruppi di esempio, bande, errori solo per stanze/capienza).
 
-- [ ] **Fase 25: Fix logo 404 e navbar mobile** (`implementationPlan-V-fixLogoENavbarMobile.md`)
+- [ ] **Fase 25: Fix logo 404 e navbar mobile** (`implementationPlan-V-fixLogoENavbarMobile.md`; versione 1.0.6)
   - [x] Causa del 404: location nginx `= /icon.svg` con `try_files /public/icon.svg` (percorso doppio `public/public`); rimossa.
   - [x] Logo (header, login, registrazione) e favicon dai file generati in `build/icons` (niente più `icon.svg` diretto).
   - [x] Menu a comparsa mobile (hamburger, `nav.js`), link in `layouts/partials/nav-links.blade.php`, account in fondo al menu sotto `sm`.
   - [x] Test `NavigationTest`, README.
   - [ ] Lanciare `php artisan test`, `npm run build` e provare nel browser a 375px; dopo il deploy verificare `/build/icons/android-chrome-192x192.png` (200).
 
-- [ ] **Fase 26: Verifica email e restrizioni per utenti non verificati** (`implementationPlan-V-verificaEmail.md`)
+- [ ] **Fase 26: Verifica email e restrizioni per utenti non verificati** (`implementationPlan-V-verificaEmail.md`; versione 1.0.6)
   - [x] `User implements MustVerifyEmail`, `EmailVerificationController`, rotte `verification.*`, email in italiano, invio alla registrazione (in `try/catch`).
   - [x] Non verificato: solo ruolo Membro (`UserController`), niente gruppi (`Group::addUser`, elenco in `admin/groups`), niente feed ICS (403 + modale nascosto).
   - [x] Banner nel layout, pagina `auth/verify-email`, badge nella pagina Utenti, `app:make-admin` e `DemoSeeder` verificano l'email.
@@ -166,29 +177,22 @@
   - [ ] Lanciare `php artisan test` (non eseguito) e `php artisan migrate`.
   - [ ] Configurare `MAIL_*` in produzione e provare registrazione + link di verifica; dopo il deploy controllare quali utenti esistenti risultano non verificati.
 
-- [ ] **Fase 27: Deploy fallito per permessi su `storage/app/private/imports`**
+- [ ] **Fase 27: Deploy fallito per permessi su `storage/app/private/imports`** (versioni 1.0.7 e 1.0.8)
   - [x] Causa: la build Docker sul server non legge `storage/app/private/imports` (creata dal container con permessi 0700) -> `permission denied` nel build context.
   - [x] `.dockerignore`: esclusi `storage/app/private`, `storage/app/public`, `storage/logs`, `storage/framework/{cache,sessions,views}`; README.
   - [x] Secondo errore causato dal `.dockerignore`: `composer dump-autoload` falliva (`Please provide a valid cache path`) perché `storage/framework/views` non esisteva nell'immagine; il `Dockerfile` ora ricrea le cartelle di `storage/` con `mkdir -p`.
-  - [ ] Commit e push, poi verificare che il deploy (GitHub Actions) passi e che il sito mostri logo, hamburger e calendario senza errori in console.
-  - [ ] Dopo il deploy: `php artisan migrate` (lo fa l'entrypoint/deploy? controllare che la migrazione `2026_10_22_120000_...` sia stata applicata).
+  - [x] Commit e push (1.0.7 "fix deploy", 1.0.8 "still fix deploy").
+  - [ ] Verificare che il deploy (GitHub Actions) passi e che il sito mostri logo, hamburger e calendario senza errori in console.
+  - [ ] Migrazioni in produzione: l'`entrypoint.sh` **non** esegue `php artisan migrate`. Verificare che lo lanci lo script di deploy sul server (`/home/ubuntu/scripts/deploy.sh`), altrimenti lanciarlo a mano (`docker compose exec app php artisan migrate --force`); controllare con `php artisan migrate:status` che le migrazioni `2026_10_22_120000_...` e `2026_10_22_200000_...` risultino applicate.
 
-- [ ] **Fase 28: Mailer Resend in produzione (`Class "Resend" not found`)**
-  - [x] Causa: `MAIL_MAILER=resend` ma il pacchetto `resend/resend-php` non è in `composer.json`/`composer.lock` (la registrazione non dà errore grazie al `try/catch`, l'email non parte).
+- [ ] **Fase 28: Mailer Resend in produzione (`Class "Resend" not found`)** (versione 1.0.9)
+  - [x] Causa: `MAIL_MAILER=resend` ma il pacchetto `resend/resend-php` non era in `composer.json`/`composer.lock` (la registrazione non dà errore grazie al `try/catch`, l'email non parte).
   - [x] README e `.env.example` documentano Resend.
-  - [ ] Lanciare `composer require resend/resend-php` (in locale senza gd: `--ignore-platform-req=ext-gd`), committare `composer.json` + `composer.lock`, deploy.
+  - [x] `composer require resend/resend-php`: il pacchetto (`^1.17`) è in `composer.json`, committato con la 1.0.9.
+  - [ ] Controllare che anche `composer.lock` contenga `resend/resend-php` (il `Dockerfile` installa dal lock) e che l'immagine di produzione lo includa.
   - [ ] Verificare in produzione: `RESEND_API_KEY` nel `.env`, `MAIL_FROM_ADDRESS` su dominio verificato in Resend, registrazione di prova e link di verifica.
 
-- [ ] **Fase 23: `.env-overrides` e versionamento (allineato a unlimiteddb)**
-  - [x] Creare `.env-overrides` (tracciato in Git) con `APP_VERSION_TYPE/PRIMARY/SECONDARY/TERTIARY` e `APP_VERSION` (parte da `1.0.0`).
-  - [x] Caricarlo in `bootstrap/app.php` con `Dotenv::createMutable(...)->safeLoad()` prima di `Application::configure(...)`.
-  - [x] Aggiungere `bash/all.sh` (incremento versione) e `bash/cmt.sh` (commit con versione + push).
-  - [x] Documentare nel README (sezione Configurazione Environment).
-  - [x] Verificato in locale: `env('APP_VERSION')` e `bash/all.sh` funzionano.
-  - [x] Esporre la versione in `config('app.version')` (`config/app.php`) e mostrarla nel footer di `layouts/app.blade.php`.
-  - [ ] Dopo il primo deploy: controllare la versione nel footer in produzione.
-
-- [ ] **Fase 29: Profilo utente e gestione utenti** (`implementationPlan-V-profiloEGestioneUtenti.md`)
+- [ ] **Fase 29: Profilo utente e gestione utenti** (`implementationPlan-V-profiloEGestioneUtenti.md`; versione 1.0.10)
   - [x] Migrazione `2026_10_22_200000_make_user_references_nullable_on_user_delete`: `events.created_by`, `event_logs.user_id`, `session_swap_requests.requested_by` da `cascadeOnDelete` a `nullOnDelete` (eliminare un utente non cancella più le sue sessioni).
   - [x] `ProfileController` + vista `profile/edit` + rotte `profile.*`: nome, email (password attuale, verifica riparte), password, rigenerazione token ICS; link al profilo dal nome nell'header e nel menu mobile.
   - [x] `UserController`: `setVerified` (checkbox "Confermato"), `resendVerification` ("Reinvia mail"), `destroy` ("Elimina": non sé stessi, non l'ultimo Admin, scambi pendenti annullati, sessioni DB eliminate); vista `admin/users/index` aggiornata.
@@ -196,7 +200,7 @@
   - [ ] Lanciare `php artisan migrate` (dev e produzione) e `php artisan test` (non eseguiti: scritti senza poter lanciare PHP).
   - [ ] Provare nel browser: modifica profilo, cambio email con mail reale (Resend), rigenerazione token + re-iscrizione calendario, checkbox Confermato, Reinvia mail, eliminazione di un utente di prova con sessioni create.
 
-- [ ] **Fase 30: Cambio giorno immediato e annullamento sessione** (`implementationPlan-V-cambioGiornoImmediato.md`; modifica la Fase 18)
+- [ ] **Fase 30: Cambio giorno immediato e annullamento sessione** (`implementationPlan-V-cambioGiornoImmediato.md`; modifica la Fase 18; versione 1.0.11)
   - [x] `SessionSwapRequest::markCompleted(?self $other = null)`; `SessionSwapService::request()` sposta subito se il giorno ha un posto libero (`moveDirectly`, log `direct_move`), rifiuta i giorni senza stanze, altrimenti richiesta pendente + abbinamento a specchio.
   - [x] `SessionSwapService::fulfillWaiting()`: alla liberazione di un posto (sessione annullata o spostata) esegue le richieste in attesa, più vecchia prima, con cascata; salta le richieste in conflitto con assemblee; notifica email `SessionMoved`.
   - [x] `EventController`: data/ora modificabili a mano solo da CD/Admin (i responsabili cambiano solo titolo e descrizione); `update()` e `destroy()` richiamano `fulfillWaiting`; messaggio «Sessione annullata.».
@@ -204,3 +208,11 @@
   - [x] Test `DayChangeRequestTest` (spostamento immediato, attesa, rilascio posto, cascata, permessi del form); README aggiornato.
   - [ ] Lanciare `php artisan test` (non eseguito: scritto senza poter lanciare PHP), in particolare `SessionSwapTest` e `DayChangeRequestTest`.
   - [ ] Provare nel browser: richiesta su giorno libero (sposta subito), su giorno pieno (resta in attesa), poi annullare la sessione che occupa il posto e controllare lo spostamento + email `SessionMoved`.
+
+- [x] **Fase 31: Allineamento della documentazione al codice** (`implementationPlan-V-allineamentoDocumentazione.md`)
+  - [x] `README.md`: stack, ruoli (Admin = CD + Log Viewer), feed ICS (email verificata, rigenerazione token), audit trail con `_context`, regole stanze/cambio giorno, seeder demo solo in locale, credenziali demo solo in locale, Resend già installato, titolo «fasi 14-30», scheduler (incluso `prune-calendar-imports`).
+  - [x] `README.md`: nuove sezioni deploy (GitHub Actions, `migrate` non automatico), mappa del codice, Gate, rotte, flusso di lavoro e documenti del repository.
+  - [x] `todo.md`: riferimenti ai piani con `V-`, voci chiuse in base ai commit 1.0.5-1.0.11, ordine delle fasi, nuove voci aperte (migrazioni in produzione, `composer.lock`).
+  - [x] Avviso di stato in testa a `situazione-di-partenza.md`, `analisi-preprogetto.md`, `analisi-finale-modifiche.md`.
+  - [x] Commenti nel codice: `routes/web.php` (import solo `.xlsx`/`.xls`) e docblock duplicato in `app/Models/User.php`.
+  - [x] Commit (`bash/all.sh`).

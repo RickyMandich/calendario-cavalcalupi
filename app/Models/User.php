@@ -103,9 +103,6 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Determine if the user is staff (ADMIN or CD).
-     */
-    /**
      * Groups where the user can manage sessions (staff or has can_manage_sessions true).
      */
     public function managedGroups(): BelongsToMany

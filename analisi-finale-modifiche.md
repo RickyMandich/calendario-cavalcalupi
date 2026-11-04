@@ -1,5 +1,11 @@
 # Analisi finale delle modifiche - Calendario Cavalcalupi
 
+> **Stato (aggiornato il 2026-11-01): documento storico, tutte le fasi qui pianificate (13-21) sono implementate** (vedi `todo.md` e i file `implementationPlan-V-*.md`). Dove il codice si discosta da questo testo **vale il codice** (descritto nel `README.md`):
+> - §8-§9 (spostamento diretto e scambio): dalla Fase 30 il cambio giorno è unico: se il giorno richiesto ha un posto libero la sessione si sposta subito; se è pieno la richiesta resta in attesa e si esegue con la richiesta speculare **oppure** quando si libera un posto (sessione annullata o spostata). Data e orario a mano solo per CD/Admin.
+> - §12 (import): solo `.xlsx`/`.xls` (niente CSV) e formato del foglio mensile reale dell'associazione (Fase 22), con modello scaricabile (Fase 24).
+> - §1 "Account vecchi: nessuna cancellazione": dalla Fase 29 CD/Admin possono eliminare utenti da `/admin/users` (sessioni e log restano, i riferimenti all'utente diventano `NULL`).
+> - Aggiunte non previste qui: verifica email con restrizioni per utenti non verificati (Fase 26), profilo utente (Fase 29), menu mobile (Fase 25), versionamento in `.env-overrides` (Fase 23), mailer Resend (Fase 28).
+
 **Data:** 20 ottobre 2026 (aggiornata dopo le risposte ai punti aperti)
 **Fonte:** export della chat ChatGPT "Analisi piano modifiche" (README, piani già eseguiti, `todo.md`, `situazione-di-partenza.md`) + tutte le correzioni e decisioni date da Riccardo. Dove l'analisi automatica di ChatGPT contraddice le correzioni, **valgono le correzioni**. Il file `result.json` (chat Telegram con Vlad) non è stato riletto: le posizioni di Vlad sono quelle riportate da Riccardo.
 
