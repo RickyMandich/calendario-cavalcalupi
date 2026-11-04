@@ -83,11 +83,11 @@
 - [x] **Fase 13: Verifica stato attuale** (`implementationPlan-V-verificaStatoAttuale.md`)
   - [x] Baseline test e git pulito; verifiche Docker/icone (fasi 9-10) e post-deploy (fasi 11-12); controllo account demo e `MAIL_*` in produzione.
 
-- [ ] **Fase 14: Sicurezza registrazione e quick-login (P0)** (`implementationPlan-V-sicurezzaRegistrazioneEQuickLogin.md`)
+- [x] **Fase 14: Sicurezza registrazione e quick-login (P0)** (`implementationPlan-V-sicurezzaRegistrazioneEQuickLogin.md`)
   - [x] Separare `RoleSeeder` (solo ruoli) da `DemoSeeder` (solo locale); `DatabaseSeeder` aggiornato.
   - [x] Quick-login registrato solo con `APP_ENV=local`; pulsanti demo nascosti altrove.
   - [x] Throttle su login/registrazione; `ics_token` fuori da `$fillable`; test di non-regressione (`RegistrationSecurityTest`).
-  - [ ] Pulizia account demo in produzione (senza perdere eventi: cascade) e README (operazione manuale in produzione).
+  - [x] Pulizia account demo in produzione: verificato il 2026-11-04, nessun utente `@cavalcalupi.it` in produzione.
 
 - [x] **Fase 15: Gestione ruoli da interfaccia** (`implementationPlan-V-gestioneRuoliUtenti.md`)
   - [x] `User::isStaff()`, Gate `manage-users`, comando `app:make-admin`.
@@ -158,7 +158,7 @@
   - [x] Modello rivisto: righe vuote tra le settimane, sistema e gruppo in due celle sovrapposte, max 3 tavoli giovedì e 5 venerdì, "Gioco libero" solo sul giorno saltato.
   - [x] `CalendarImportParser`: legge anche sistema + gruppo su due righe (riga sotto la serata); test `test_system_and_group_in_two_stacked_cells_are_read_like_one_cell`.
   - [x] Copiare il file in `public/modello-importazione-calendario.xlsx` (presente nel repository, committato con la 1.0.5).
-  - [ ] Lanciare `php artisan test --filter=CalendarImportTest` (il test nuovo non è stato eseguito).
+  - [x] `php artisan test` del 2026-11-04: 165 test verdi (683 asserzioni), compreso `CalendarImportTest`.
   - [ ] Provare: scaricare il modello dalla pagina, ricaricarlo nell'import (anno stagione 2026) e controllare che l'anteprima lo legga (gruppi di esempio, bande, errori solo per stanze/capienza).
 
 - [ ] **Fase 25: Fix logo 404 e navbar mobile** (`implementationPlan-V-fixLogoENavbarMobile.md`; versione 1.0.6)
@@ -166,7 +166,9 @@
   - [x] Logo (header, login, registrazione) e favicon dai file generati in `build/icons` (niente più `icon.svg` diretto).
   - [x] Menu a comparsa mobile (hamburger, `nav.js`), link in `layouts/partials/nav-links.blade.php`, account in fondo al menu sotto `sm`.
   - [x] Test `NavigationTest`, README.
-  - [ ] Lanciare `php artisan test`, `npm run build` e provare nel browser a 375px; dopo il deploy verificare `/build/icons/android-chrome-192x192.png` (200).
+  - [x] `php artisan test` verde (2026-11-04).
+  - [x] `npm run build`: eseguito a ogni build Docker (stage del `Dockerfile`), non serve lanciarlo a mano.
+  - [ ] Provare nel browser a 375px; in produzione verificare `/build/icons/android-chrome-192x192.png` (200).
 
 - [ ] **Fase 26: Verifica email e restrizioni per utenti non verificati** (`implementationPlan-V-verificaEmail.md`; versione 1.0.6)
   - [x] `User implements MustVerifyEmail`, `EmailVerificationController`, rotte `verification.*`, email in italiano, invio alla registrazione (in `try/catch`).
@@ -174,22 +176,25 @@
   - [x] Banner nel layout, pagina `auth/verify-email`, badge nella pagina Utenti, `app:make-admin` e `DemoSeeder` verificano l'email.
   - [x] Migrazione backfill (staff e membri di gruppi esistenti = verificati).
   - [x] Test `EmailVerificationTest`; `AuthorizationGatesTest`, `EventAndGroupLogicTest`, `IcsCalendarControllerTest` passati a `User::factory()`; README.
-  - [ ] Lanciare `php artisan test` (non eseguito) e `php artisan migrate`.
-  - [ ] Configurare `MAIL_*` in produzione e provare registrazione + link di verifica; dopo il deploy controllare quali utenti esistenti risultano non verificati.
+  - [x] `php artisan test` verde; migrazione `2026_10_22_120000_...` applicata in dev e in produzione.
+  - [x] Utenti esistenti non verificati in produzione: 0 (2026-11-04).
+  - [ ] Provare in produzione registrazione + link di verifica con una mail reale (vedi Fase 28).
 
 - [ ] **Fase 27: Deploy fallito per permessi su `storage/app/private/imports`** (versioni 1.0.7 e 1.0.8)
   - [x] Causa: la build Docker sul server non legge `storage/app/private/imports` (creata dal container con permessi 0700) -> `permission denied` nel build context.
   - [x] `.dockerignore`: esclusi `storage/app/private`, `storage/app/public`, `storage/logs`, `storage/framework/{cache,sessions,views}`; README.
   - [x] Secondo errore causato dal `.dockerignore`: `composer dump-autoload` falliva (`Please provide a valid cache path`) perché `storage/framework/views` non esisteva nell'immagine; il `Dockerfile` ora ricrea le cartelle di `storage/` con `mkdir -p`.
   - [x] Commit e push (1.0.7 "fix deploy", 1.0.8 "still fix deploy").
-  - [ ] Verificare che il deploy (GitHub Actions) passi e che il sito mostri logo, hamburger e calendario senza errori in console.
-  - [ ] Migrazioni in produzione: l'`entrypoint.sh` **non** esegue `php artisan migrate`. Verificare che lo lanci lo script di deploy sul server (`/home/ubuntu/scripts/deploy.sh`), altrimenti lanciarlo a mano (`docker compose exec app php artisan migrate --force`); controllare con `php artisan migrate:status` che le migrazioni `2026_10_22_120000_...` e `2026_10_22_200000_...` risultino applicate.
+  - [x] Deploy funzionante: in produzione risultano applicate tutte le migrazioni fino a `2026_10_22_200000_...` (2026-11-04).
+  - [x] Migrazioni in produzione: `/home/ubuntu/scripts/deploy.sh` esegue `migrate --force` a ogni deploy (l'`entrypoint.sh` no).
+  - [ ] Controllo visivo in produzione: logo, hamburger e calendario senza errori in console.
 
 - [ ] **Fase 28: Mailer Resend in produzione (`Class "Resend" not found`)** (versione 1.0.9)
   - [x] Causa: `MAIL_MAILER=resend` ma il pacchetto `resend/resend-php` non era in `composer.json`/`composer.lock` (la registrazione non dà errore grazie al `try/catch`, l'email non parte).
   - [x] README e `.env.example` documentano Resend.
   - [x] `composer require resend/resend-php`: il pacchetto (`^1.17`) è in `composer.json`, committato con la 1.0.9.
-  - [ ] Controllare che anche `composer.lock` contenga `resend/resend-php` (il `Dockerfile` installa dal lock) e che l'immagine di produzione lo includa.
+  - [x] `composer.lock` contiene `resend/resend-php` (verificato 2026-11-04).
+  - [x] Pacchetto presente nell'immagine di produzione (`vendor/resend`, verificato 2026-11-04).
   - [ ] Verificare in produzione: `RESEND_API_KEY` nel `.env`, `MAIL_FROM_ADDRESS` su dominio verificato in Resend, registrazione di prova e link di verifica.
 
 - [ ] **Fase 29: Profilo utente e gestione utenti** (`implementationPlan-V-profiloEGestioneUtenti.md`; versione 1.0.10)
@@ -197,7 +202,8 @@
   - [x] `ProfileController` + vista `profile/edit` + rotte `profile.*`: nome, email (password attuale, verifica riparte), password, rigenerazione token ICS; link al profilo dal nome nell'header e nel menu mobile.
   - [x] `UserController`: `setVerified` (checkbox "Confermato"), `resendVerification` ("Reinvia mail"), `destroy` ("Elimina": non sé stessi, non l'ultimo Admin, scambi pendenti annullati, sessioni DB eliminate); vista `admin/users/index` aggiornata.
   - [x] Test `ProfileTest` e `UserManagementActionsTest`; README.
-  - [ ] Lanciare `php artisan migrate` (dev e produzione) e `php artisan test` (non eseguiti: scritti senza poter lanciare PHP).
+  - [x] `php artisan test` verde; migrazione `2026_10_22_200000_...` applicata in produzione.
+  - [x] `php artisan migrate` eseguita in dev (2026-11-04).
   - [ ] Provare nel browser: modifica profilo, cambio email con mail reale (Resend), rigenerazione token + re-iscrizione calendario, checkbox Confermato, Reinvia mail, eliminazione di un utente di prova con sessioni create.
 
 - [ ] **Fase 30: Cambio giorno immediato e annullamento sessione** (`implementationPlan-V-cambioGiornoImmediato.md`; modifica la Fase 18; versione 1.0.11)
@@ -206,7 +212,7 @@
   - [x] `EventController`: data/ora modificabili a mano solo da CD/Admin (i responsabili cambiano solo titolo e descrizione); `update()` e `destroy()` richiamano `fulfillWaiting`; messaggio «Sessione annullata.».
   - [x] Viste `events/show` (sezione «Cambio giorno», «Annulla sessione», log `direct_move`/`waiting_request`), `events/edit` (date solo staff), `swap-requests/index` (testi).
   - [x] Test `DayChangeRequestTest` (spostamento immediato, attesa, rilascio posto, cascata, permessi del form); README aggiornato.
-  - [ ] Lanciare `php artisan test` (non eseguito: scritto senza poter lanciare PHP), in particolare `SessionSwapTest` e `DayChangeRequestTest`.
+  - [x] `php artisan test` verde (2026-11-04), compresi `SessionSwapTest` e `DayChangeRequestTest`.
   - [ ] Provare nel browser: richiesta su giorno libero (sposta subito), su giorno pieno (resta in attesa), poi annullare la sessione che occupa il posto e controllare lo spostamento + email `SessionMoved`.
 
 - [x] **Fase 31: Allineamento della documentazione al codice** (`implementationPlan-V-allineamentoDocumentazione.md`)
@@ -216,3 +222,9 @@
   - [x] Avviso di stato in testa a `situazione-di-partenza.md`, `analisi-preprogetto.md`, `analisi-finale-modifiche.md`.
   - [x] Commenti nel codice: `routes/web.php` (import solo `.xlsx`/`.xls`) e docblock duplicato in `app/Models/User.php`.
   - [x] Commit (`bash/all.sh`).
+
+- [ ] **Fase 32: Esiti delle verifiche del 2026-11-04**
+  - [x] `UserRolesTest`: `/** @test */` sostituito da `#[Test]` (eliminati i 6 warning di deprecazione PHPUnit 12).
+  - [x] README: il deploy esegue `migrate --force`; nell'immagine di produzione non ci sono `composer` ed `npm`.
+  - [ ] Rilanciare `php artisan test --filter=UserRolesTest` (modificato senza poterlo eseguire) e committare con le altre modifiche.
+  - [ ] **Sicurezza**: il token del bot Telegram scritto in chiaro in `/home/ubuntu/scripts/deploy.sh` è stato incollato in chat. Rigenerarlo con BotFather (`/revoke`) e spostarlo in una variabile d'ambiente o in un file non versionato letto dallo script.

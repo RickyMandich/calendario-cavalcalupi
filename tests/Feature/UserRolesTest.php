@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -20,14 +21,14 @@ class UserRolesTest extends TestCase
         Role::create(['name' => 'Membro', 'guard_name' => 'web']);
     }
 
-    /** @test */
+    #[Test]
     public function guest_cannot_access_user_management()
     {
         $response = $this->get(route('admin.users.index'));
         $response->assertRedirect(route('login'));
     }
 
-    /** @test */
+    #[Test]
     public function member_cannot_access_user_management()
     {
         $member = User::factory()->create()->assignRole('Membro');
@@ -35,7 +36,7 @@ class UserRolesTest extends TestCase
         $response->assertStatus(403);
     }
 
-    /** @test */
+    #[Test]
     public function cd_and_admin_can_view_user_management_page()
     {
         $cd = User::factory()->create()->assignRole('CD');
@@ -45,7 +46,7 @@ class UserRolesTest extends TestCase
         $this->actingAs($admin)->get(route('admin.users.index'))->assertOk();
     }
 
-    /** @test */
+    #[Test]
     public function admin_can_promote_user_to_admin_and_last_admin_protected()
     {
         $admin = User::factory()->create()->assignRole('ADMIN');
@@ -69,7 +70,7 @@ class UserRolesTest extends TestCase
         $this->assertFalse($admin->fresh()->hasRole('ADMIN'));
     }
 
-    /** @test */
+    #[Test]
     public function invalid_role_is_rejected()
     {
         $admin = User::factory()->create()->assignRole('ADMIN');
@@ -79,7 +80,7 @@ class UserRolesTest extends TestCase
             ->assertSessionHasErrors('role');
     }
 
-    /** @test */
+    #[Test]
     public function search_filter_returns_correct_users()
     {
         $admin = User::factory()->create(['name' => 'Alice'])->assignRole('ADMIN');
@@ -89,4 +90,3 @@ class UserRolesTest extends TestCase
         $response->assertDontSee('Bob');
     }
 }
-
