@@ -27,7 +27,7 @@ class CalendarController extends Controller
     ];
 
     /**
-     * Pagina pubblica del calendario. Vista predefinita: calendario interattivo; `?view=list`: elenco a card.
+     * Pagina pubblica del calendario. Vista predefinita: calendario interattivo (apre sull'Agenda); `?view=list`: elenco a card raggruppate per settimana.
      */
     public function index(Request $request): View
     {
@@ -36,14 +36,17 @@ class CalendarController extends Controller
         $view = $request->query('view') === 'list' ? 'list' : 'calendar';
 
         $events = collect();
+        $weeks = collect();
         if ($view === 'list') {
             $query = Event::with(['group', 'creator', 'swapRequests'])->orderBy('start_time');
             $this->applyFilter($query, $filter);
             $events = $query->get();
+            $weeks = $this->groupByWeek($events);
         }
 
         return view('calendar.index', [
             'events' => $events,
+            'weeks' => $weeks,
             'filter' => $filter,
             'view' => $view,
             'user' => $user,
@@ -51,6 +54,49 @@ class CalendarController extends Controller
             'userActiveGroups' => $user ? $user->groups()->where('is_active', true)->orderBy('name')->get() : collect(),
             'canCreateSessions' => $user && ($user->isStaff() || $user->managedGroups()->exists()),
         ]);
+    }
+
+    /**
+     * Raggruppa gli eventi (già ordinati per inizio) per settimana lunedi-domenica.
+     *
+     * @return \Illuminate\Support\Collection<int, array{start:Carbon,end:Carbon,label:string,current:bool,events:\Illuminate\Support\Collection}>
+     */
+    private function groupByWeek($events)
+    {
+        $tz = config('app.timezone');
+        $now = now($tz);
+
+        return $events
+            ->groupBy(fn (Event $e) => $e->start_time->copy()->startOfWeek(Carbon::MONDAY)->toDateString())
+            ->map(function ($weekEvents, $monday) use ($tz, $now) {
+                $start = Carbon::parse($monday, $tz)->startOfDay();
+                $end = $start->copy()->addDays(6)->endOfDay();
+
+                return [
+                    'start' => $start,
+                    'end' => $end,
+                    'label' => $this->weekLabel($start, $end),
+                    'current' => $now->between($start, $end),
+                    'events' => $weekEvents->values(),
+                ];
+            })
+            ->values();
+    }
+
+    /** "Settimana dal 3 al 9 novembre 2026" (mese/anno su entrambi gli estremi se la settimana li attraversa). */
+    private function weekLabel(Carbon $start, Carbon $end): string
+    {
+        $s = $start->copy()->locale('it');
+        $e = $end->copy()->locale('it');
+
+        if ($s->year !== $e->year) {
+            return 'Settimana dal '.$s->translatedFormat('j F Y').' al '.$e->translatedFormat('j F Y');
+        }
+        if ($s->month !== $e->month) {
+            return 'Settimana dal '.$s->translatedFormat('j F').' al '.$e->translatedFormat('j F Y');
+        }
+
+        return 'Settimana dal '.$s->day.' al '.$e->translatedFormat('j F Y');
     }
 
     /**

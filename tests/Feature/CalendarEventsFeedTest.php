@@ -107,4 +107,37 @@ class CalendarEventsFeedTest extends TestCase
         $this->get('/calendar')->assertOk()->assertSee('id="calendar"', false)->assertSee('Calendario Attività');
         $this->get('/calendar?view=list')->assertOk()->assertSee('Dettagli e Storico')->assertSee('In elenco');
     }
+
+    public function test_list_view_groups_events_by_week(): void
+    {
+        $group = Group::create(['name' => 'Alfa', 'is_active' => true]);
+
+        // giovedì e venerdì della stessa settimana + giovedì della settimana dopo
+        $thursday = $this->nextWeekday(4);
+        $friday = $thursday->copy()->addDay();
+        $nextThursday = $thursday->copy()->addWeek();
+
+        $this->makeSession($group, $thursday, '21:30', '23:30', 'Giovedi');
+        $this->makeSession($group, $friday, '21:30', '23:30', 'Venerdi');
+        $this->makeSession($group, $nextThursday, '21:30', '23:30', 'GiovediDopo');
+
+        $response = $this->get('/calendar?view=list')->assertOk();
+
+        $response->assertViewHas('weeks', function ($weeks) {
+            return $weeks->count() === 2
+                && $weeks[0]['events']->pluck('title')->all() === ['Giovedi', 'Venerdi']
+                && $weeks[1]['events']->pluck('title')->all() === ['GiovediDopo'];
+        });
+
+        $monday = $thursday->copy()->startOfWeek();
+        $response->assertSee('Settimana dal '.$monday->day, false);
+    }
+
+    public function test_calendar_view_does_not_load_the_event_list(): void
+    {
+        $group = Group::create(['name' => 'Alfa', 'is_active' => true]);
+        $this->makeSession($group, now()->addDays(5)->startOfDay(), '21:00', '23:00', 'Non in elenco');
+
+        $this->get('/calendar')->assertOk()->assertViewHas('weeks', fn ($weeks) => $weeks->isEmpty());
+    }
 }

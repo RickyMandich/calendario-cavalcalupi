@@ -100,12 +100,12 @@
   - [x] Interruttore "Responsabile" in `admin/groups`; test (`SessionManagementPermissionTest`).
   - [x] README aggiornato; `situazione-di-partenza.md` (brief originale) resta com'è, con un avviso in testa che indica le regole superate.
 
-- [ ] **Fase 17: Stanze, capienza e regole del calendario** (`implementationPlan-V-stanzeERegoleCalendario.md`)
+- [x] **Fase 17: Stanze, capienza e regole del calendario** (`implementationPlan-V-stanzeERegoleCalendario.md`)
   - [x] Migrazioni e modelli `rooms`/`room_weekday`; pagina Stanze (`RoomController`); `SchedulingException`.
   - [x] `CalendarScheduler` (capienza, slot, assemblee per sovrapposizione oraria, lock) e integrazione in `EventController`.
   - [x] Endpoint pubblico `/calendar/availability`; suggerimento disponibilità nei form; test (`SchedulerRulesTest`, `RoomsAndAvailabilityTest`).
   - [x] README.
-  - [ ] Prova di concorrenza su MariaDB (manuale).
+  - [x] Prova di concorrenza su MariaDB (manuale).
 
 - [x] **Fase 18: Spostamento diretto e scambio sessioni** (`implementationPlan-V-spostamentoDirettoESwap.md`; il flusso di cambio giorno è stato poi modificato dalla Fase 30)
   - [x] Tabella `session_swap_requests` (una pendente per sessione); `SessionSwapService` (richiesta, abbinamento a specchio, annullamento).
@@ -114,26 +114,26 @@
   - [x] README.
   - [x] Configurazione `MAIL_*` / Resend in produzione: funzionante (verificato 2026-11-04, vedi Fase 28).
 
-- [ ] **Fase 19: Modalità scura** (`implementationPlan-V-modalitaScura.md`)
+- [x] **Fase 19: Modalità scura** (`implementationPlan-V-modalitaScura.md`)
   - [x] Rimappatura scale colore sotto `.dark`, variabili semantiche, script anti-lampo e toggle sistema/chiaro/scuro.
   - [x] Overlay modali e footer su variabili semantiche; test `ThemeToggleTest`.
   - [x] README.
-  - [ ] Checklist visiva e contrasto nel browser (viste auth, eventi, utenti, input date).
+  - [x] Checklist visiva e contrasto nel browser (viste auth, eventi, utenti, input date): verificata (2026-11-04).
 
-- [ ] **Fase 20: Calendario visuale (FullCalendar)** (`implementationPlan-V-calendarioVisuale.md`)
+- [x] **Fase 20: Calendario visuale (FullCalendar)** (`implementationPlan-V-calendarioVisuale.md`)
   - [x] Dipendenze npm + entry Vite; feed JSON `/calendar/events`; vista elenco `?view=list`.
   - [x] Badge capienza/assemblea per giorno, modale di dettaglio, stile adattivo al tema; test (`CalendarEventsFeedTest`).
   - [x] README.
-  - [ ] Verifica visiva nel browser (mobile incluso).
+  - [x] Verifica visiva nel browser (mobile incluso): verificata (2026-11-04).
 
-- [ ] **Fase 21: Importazione calendario da Excel** (`implementationPlan-V-importazioneCalendarioExcel.md`; nata come "Excel/CSV", riscritta nella Fase 22: oggi accetta solo `.xlsx`/`.xls`)
+- [x] **Fase 21: Importazione calendario da Excel** (`implementationPlan-V-importazioneCalendarioExcel.md`; nata come "Excel/CSV", riscritta nella Fase 22: oggi accetta solo `.xlsx`/`.xls`)
   - [x] Parser, servizio con anteprima + commit tutto-o-niente (stesse regole del form), controller e viste, modello scaricabile, pulizia file temporanei.
   - [x] Test scritti (`CalendarImportTest`); `Dockerfile` (stage composer) con `gd` e `zip`.
   - [x] Installare `phpoffice/phpspreadsheet` (richiede `ext-gd`; in locale `--ignore-platform-req=ext-gd`) e far passare i test (97 test verdi, build Docker ok, migrazione `session_swap_requests` applicata).
   - [x] README.
-  - [ ] Prova manuale dell'import nel browser con un file reale.
+  - [x] Prova manuale dell'import nel browser con un file reale: fatta.
 
-- [ ] **Fase 22: Import dal foglio mensile reale** (`implementationPlan-V-importazioneCalendarioFoglioMensile.md`)
+- [x] **Fase 22: Import dal foglio mensile reale** (`implementationPlan-V-importazioneCalendarioFoglioMensile.md`)
   - [x] Parser su layout a griglia (mese, etichette `Giovedì 3`, tavoli a 2 righe, bande su celle unite anche su due giorni, cambio mese).
   - [x] Servizio: anno di stagione, controllo giorno della settimana, orari 21:30–00:00, sistema nella descrizione, select gruppi (anche «crea nuovo») e bande (associativo/assemblea/ignora), commit tutto-o-niente.
   - [x] Controller, vista e test riscritti; rimosso il modello scaricabile (poi reintrodotto nella Fase 24); titolo del feed senza ripetizione del nome gruppo.
@@ -141,7 +141,7 @@
   - [x] `php artisan test`: 103 test verdi (394 asserzioni) *(conteggio di allora: le fasi 24-30 hanno aggiunto test)*.
   - [x] Nginx: asset serviti da `/var/www/build` (fix `read-only file system` in produzione).
   - [x] Ricostruire/riavviare in dev e produzione (il deploy lo fa a ogni push) e verificare `/build/...`, `/favicon.ico` (verificato 2026-11-04).
-  - [ ] Provare con il **file Excel reale** (formato cella sistema/campagna, bande unite).
+  - [x] Provato con il **file Excel reale** (formato cella sistema/campagna, bande unite): fatto.
 
 - [x] **Fase 23: `.env-overrides` e versionamento (allineato a unlimiteddb)**
   - [x] Creare `.env-overrides` (tracciato in Git) con `APP_VERSION_TYPE/PRIMARY/SECONDARY/TERTIARY` e `APP_VERSION` (parte da `1.0.0`; oggi `1.0.11`).
@@ -152,14 +152,14 @@
   - [x] Esporre la versione in `config('app.version')` (`config/app.php`) e mostrarla nel footer di `layouts/app.blade.php`.
   - [x] Versione nel footer in produzione controllata (2026-11-04).
 
-- [ ] **Fase 24: modello Excel scaricabile nella pagina di import**
+- [x] **Fase 24: modello Excel scaricabile nella pagina di import**
   - [x] Creare il modello generico (ottobre 2026 + foglio "Istruzioni") e linkarlo in `admin/import/calendar.blade.php` con `asset('modello-importazione-calendario.xlsx')`.
   - [x] Documentare nel README (sezione Import calendario).
   - [x] Modello rivisto: righe vuote tra le settimane, sistema e gruppo in due celle sovrapposte, max 3 tavoli giovedì e 5 venerdì, "Gioco libero" solo sul giorno saltato.
   - [x] `CalendarImportParser`: legge anche sistema + gruppo su due righe (riga sotto la serata); test `test_system_and_group_in_two_stacked_cells_are_read_like_one_cell`.
   - [x] Copiare il file in `public/modello-importazione-calendario.xlsx` (presente nel repository, committato con la 1.0.5).
   - [x] `php artisan test` del 2026-11-04: 165 test verdi (683 asserzioni), compreso `CalendarImportTest`.
-  - [ ] Provare: scaricare il modello dalla pagina, ricaricarlo nell'import (anno stagione 2026) e controllare che l'anteprima lo legga (gruppi di esempio, bande, errori solo per stanze/capienza).
+  - [x] Provato: modello scaricato dalla pagina e ricaricato nell'import, l'anteprima lo legge.
 
 - [x] **Fase 25: Fix logo 404 e navbar mobile** (`implementationPlan-V-fixLogoENavbarMobile.md`; versione 1.0.6)
   - [x] Causa del 404: location nginx `= /icon.svg` con `try_files /public/icon.svg` (percorso doppio `public/public`); rimossa.
@@ -197,23 +197,23 @@
   - [x] Pacchetto presente nell'immagine di produzione (`vendor/resend`, verificato 2026-11-04).
   - [x] Verificato in produzione: Resend configurato, registrazione di prova e link di verifica funzionanti (2026-11-04).
 
-- [ ] **Fase 29: Profilo utente e gestione utenti** (`implementationPlan-V-profiloEGestioneUtenti.md`; versione 1.0.10)
+- [x] **Fase 29: Profilo utente e gestione utenti** (`implementationPlan-V-profiloEGestioneUtenti.md`; versione 1.0.10)
   - [x] Migrazione `2026_10_22_200000_make_user_references_nullable_on_user_delete`: `events.created_by`, `event_logs.user_id`, `session_swap_requests.requested_by` da `cascadeOnDelete` a `nullOnDelete` (eliminare un utente non cancella più le sue sessioni).
   - [x] `ProfileController` + vista `profile/edit` + rotte `profile.*`: nome, email (password attuale, verifica riparte), password, rigenerazione token ICS; link al profilo dal nome nell'header e nel menu mobile.
   - [x] `UserController`: `setVerified` (checkbox "Confermato"), `resendVerification` ("Reinvia mail"), `destroy` ("Elimina": non sé stessi, non l'ultimo Admin, scambi pendenti annullati, sessioni DB eliminate); vista `admin/users/index` aggiornata.
   - [x] Test `ProfileTest` e `UserManagementActionsTest`; README.
   - [x] `php artisan test` verde; migrazione `2026_10_22_200000_...` applicata in produzione.
   - [x] `php artisan migrate` eseguita in dev (2026-11-04).
-  - [ ] Provare nel browser: modifica profilo, cambio email con mail reale (Resend), rigenerazione token + re-iscrizione calendario, checkbox Confermato, Reinvia mail, eliminazione di un utente di prova con sessioni create.
+  - [x] Provato nel browser: modifica profilo, cambio email con mail reale (Resend), rigenerazione token + re-iscrizione calendario, checkbox Confermato, Reinvia mail, eliminazione di un utente di prova con sessioni create.
 
-- [ ] **Fase 30: Cambio giorno immediato e annullamento sessione** (`implementationPlan-V-cambioGiornoImmediato.md`; modifica la Fase 18; versione 1.0.11)
+- [x] **Fase 30: Cambio giorno immediato e annullamento sessione** (`implementationPlan-V-cambioGiornoImmediato.md`; modifica la Fase 18; versione 1.0.11)
   - [x] `SessionSwapRequest::markCompleted(?self $other = null)`; `SessionSwapService::request()` sposta subito se il giorno ha un posto libero (`moveDirectly`, log `direct_move`), rifiuta i giorni senza stanze, altrimenti richiesta pendente + abbinamento a specchio.
   - [x] `SessionSwapService::fulfillWaiting()`: alla liberazione di un posto (sessione annullata o spostata) esegue le richieste in attesa, più vecchia prima, con cascata; salta le richieste in conflitto con assemblee; notifica email `SessionMoved`.
   - [x] `EventController`: data/ora modificabili a mano solo da CD/Admin (i responsabili cambiano solo titolo e descrizione); `update()` e `destroy()` richiamano `fulfillWaiting`; messaggio «Sessione annullata.».
   - [x] Viste `events/show` (sezione «Cambio giorno», «Annulla sessione», log `direct_move`/`waiting_request`), `events/edit` (date solo staff), `swap-requests/index` (testi).
   - [x] Test `DayChangeRequestTest` (spostamento immediato, attesa, rilascio posto, cascata, permessi del form); README aggiornato.
   - [x] `php artisan test` verde (2026-11-04), compresi `SessionSwapTest` e `DayChangeRequestTest`.
-  - [ ] Provare nel browser: richiesta su giorno libero (sposta subito), su giorno pieno (resta in attesa), poi annullare la sessione che occupa il posto e controllare lo spostamento + email `SessionMoved`.
+  - [x] Provato nel browser: richiesta su giorno libero (sposta subito), su giorno pieno (resta in attesa), poi annullamento della sessione che occupa il posto con spostamento + email `SessionMoved`.
 
 - [x] **Fase 31: Allineamento della documentazione al codice** (`implementationPlan-V-allineamentoDocumentazione.md`)
   - [x] `README.md`: stack, ruoli (Admin = CD + Log Viewer), feed ICS (email verificata, rigenerazione token), audit trail con `_context`, regole stanze/cambio giorno, seeder demo solo in locale, credenziali demo solo in locale, Resend già installato, titolo «fasi 14-30», scheduler (incluso `prune-calendar-imports`).
@@ -228,3 +228,14 @@
   - [x] README: il deploy esegue `migrate --force`; nell'immagine di produzione non ci sono `composer` ed `npm`.
   - [x] `UserRolesTest` rilanciato (verde) e modifiche committate (2026-11-04).
   - [x] **Sicurezza**: il token del bot Telegram scritto in chiaro in `/home/ubuntu/scripts/deploy.sh` è stato incollato in chat. Rigenerarlo con BotFather (`/revoke`) e spostarlo in una variabile d'ambiente o in un file non versionato letto dallo script.
+
+- [ ] **Fase 33: Calendario con Agenda predefinita, click al dettaglio, elenco per settimana, durata corretta** (`implementationPlan-V-calendarioAgendaEDettaglio.md`; parte da `1.0.12`)
+  - [x] `resources/js/calendar.js`: vista iniziale `listWeek` (Agenda) su ogni schermo, toolbar `listWeek,dayGridMonth,timeGridWeek`; il resize riporta all'Agenda solo sotto 640px.
+  - [x] `eventClick`: naviga a `extendedProps.url` (dettaglio); senza `url` (ospiti) resta il modale.
+  - [x] `CalendarController::index` + `calendar/index.blade.php`: elenco `?view=list` raggruppato per settimana lunedì-domenica con intestazione e badge «Questa settimana».
+  - [x] `Event::durationLabel()` e uso in `events/show.blade.php` (fix «2.5 ore e 30 min» → «2 ore e 30 min»).
+  - [x] Test: nuovo `EventDurationTest`; in `CalendarEventsFeedTest` raggruppamento per settimana e vista calendario senza elenco.
+  - [x] README (sezione Calendario visuale, elenco test, titolo fasi 14-33).
+  - [ ] Eseguire `php artisan test` (non eseguibile da qui: i due nuovi test sono scritti ma non ancora lanciati) e `npm run build`.
+  - [ ] Provare nel browser: Agenda all'apertura su desktop e mobile, click da loggato (va al dettaglio) e da ospite (si apre il modale), cambio a Mese e ritorno.
+  - [ ] Commit con `bash/all.sh`.

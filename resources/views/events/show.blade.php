@@ -108,12 +108,7 @@
 
             <div class="p-3.5 rounded-xl bg-brand-50 border border-brand-100">
                 <span class="text-gray-500 block mb-1">⏳ Durata Prevista</span>
-                <span class="text-brand-950 font-medium">
-                    {{ $event->start_time->diffInHours($event->end_time) }} ore
-                    @if($event->start_time->diffInMinutes($event->end_time) % 60 > 0)
-                        e {{ $event->start_time->diffInMinutes($event->end_time) % 60 }} min
-                    @endif
-                </span>
+                <span class="text-brand-950 font-medium">{{ $event->durationLabel() }}</span>
             </div>
         </div>
 

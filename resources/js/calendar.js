@@ -15,11 +15,12 @@ if (el) {
         plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
         locale: itLocale,
         firstDay: 1,
-        initialView: isNarrow() ? 'listWeek' : 'dayGridMonth',
+        // 'listWeek' = vista "Agenda" (etichetta italiana di FullCalendar): è quella predefinita su ogni schermo
+        initialView: 'listWeek',
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
-            right: 'dayGridMonth,timeGridWeek,listWeek',
+            right: 'listWeek,dayGridMonth,timeGridWeek',
         },
         height: 'auto',
         eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
@@ -29,13 +30,20 @@ if (el) {
         },
         eventClick: (info) => {
             info.jsEvent.preventDefault();
-            openEventModal(info.event);
+            // Utenti loggati: direttamente la pagina di dettaglio. Gli ospiti non possono aprirla
+            // (richiede il login), quindi per loro resta il modale con le informazioni pubbliche.
+            const url = info.event.extendedProps.url;
+            if (url) {
+                window.location.href = url;
+            } else {
+                openEventModal(info.event);
+            }
         },
         datesSet: (info) => loadAvailability(info),
+        // Su schermi stretti mese e settimana oraria non sono leggibili: si torna all'agenda.
+        // Quando lo schermo si allarga la vista scelta dall'utente non viene toccata.
         windowResize: () => {
-            const view = calendar.view.type;
-            if (isNarrow() && view !== 'listWeek') calendar.changeView('listWeek');
-            if (!isNarrow() && view === 'listWeek') calendar.changeView('dayGridMonth');
+            if (isNarrow() && calendar.view.type !== 'listWeek') calendar.changeView('listWeek');
         },
     });
 

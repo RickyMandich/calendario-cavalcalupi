@@ -58,6 +58,27 @@ class Event extends Model
         });
     }
 
+    /**
+     * Durata in forma leggibile: "2 ore e 30 min", "2 ore", "1 ora", "45 min".
+     * Si parte dai minuti interi (diffInHours() di Carbon 3 restituisce un float: 2.5).
+     */
+    public function durationLabel(): string
+    {
+        $minutes = (int) round(abs($this->start_time->diffInMinutes($this->end_time)));
+        $hours = intdiv($minutes, 60);
+        $rest = $minutes % 60;
+
+        $parts = [];
+        if ($hours > 0) {
+            $parts[] = $hours === 1 ? '1 ora' : "{$hours} ore";
+        }
+        if ($rest > 0) {
+            $parts[] = "{$rest} min";
+        }
+
+        return $parts ? implode(' e ', $parts) : '0 min';
+    }
+
     public function group(): BelongsTo
     {
         return $this->belongsTo(Group::class);
