@@ -229,13 +229,20 @@
   - [x] `UserRolesTest` rilanciato (verde) e modifiche committate (2026-11-04).
   - [x] **Sicurezza**: il token del bot Telegram scritto in chiaro in `/home/ubuntu/scripts/deploy.sh` è stato incollato in chat. Rigenerarlo con BotFather (`/revoke`) e spostarlo in una variabile d'ambiente o in un file non versionato letto dallo script.
 
-- [ ] **Fase 33: Calendario con Agenda predefinita, click al dettaglio, elenco per settimana, durata corretta** (`implementationPlan-V-calendarioAgendaEDettaglio.md`; parte da `1.0.12`)
+- [X] **Fase 33: Calendario con Agenda predefinita, click al dettaglio, elenco per settimana, durata corretta** (`implementationPlan-V-calendarioAgendaEDettaglio.md`; parte da `1.0.12`)
   - [x] `resources/js/calendar.js`: vista iniziale `listWeek` (Agenda) su ogni schermo, toolbar `listWeek,dayGridMonth,timeGridWeek`; il resize riporta all'Agenda solo sotto 640px.
   - [x] `eventClick`: naviga a `extendedProps.url` (dettaglio); senza `url` (ospiti) resta il modale.
   - [x] `CalendarController::index` + `calendar/index.blade.php`: elenco `?view=list` raggruppato per settimana lunedì-domenica con intestazione e badge «Questa settimana».
   - [x] `Event::durationLabel()` e uso in `events/show.blade.php` (fix «2.5 ore e 30 min» → «2 ore e 30 min»).
   - [x] Test: nuovo `EventDurationTest`; in `CalendarEventsFeedTest` raggruppamento per settimana e vista calendario senza elenco.
   - [x] README (sezione Calendario visuale, elenco test, titolo fasi 14-33).
-  - [ ] Eseguire `php artisan test` (non eseguibile da qui: i due nuovi test sono scritti ma non ancora lanciati) e `npm run build`.
-  - [ ] Provare nel browser: Agenda all'apertura su desktop e mobile, click da loggato (va al dettaglio) e da ospite (si apre il modale), cambio a Mese e ritorno.
-  - [ ] Commit con `bash/all.sh`.
+  - [X] Eseguire `php artisan test` (non eseguibile da qui: i due nuovi test sono scritti ma non ancora lanciati) e `npm run build`.
+  - [X] Provare nel browser: Agenda all'apertura su desktop e mobile, click da loggato (va al dettaglio) e da ospite (si apre il modale), cambio a Mese e ritorno.
+  - [X] Commit con `bash/all.sh`.
+
+- [ ] **Fase 34: Bot Telegram** (analisi in `analisi-botTelegram.md`, in attesa di ok del referente CD; poi `implementationPlan-botTelegram.md`)
+  - [x] Raccolti requisiti e decisioni (notifiche nel topic «presenza», ordini in privato con collegamento account, `/settimana`).
+  - [x] Analisi dettagliata scritta in `analisi-botTelegram.md` (2026-11-21).
+  - [ ] Ok del referente CD sui punti della sezione 13 dell'analisi.
+  - [ ] Implementation plan e fase A (azioni condivise, collegamento account, topic, notifiche, `/settimana`).
+  - [ ] Fase B (azioni sessioni in privato) e fase C (assemblee/eventi, notifiche personali, pulsanti browser).
